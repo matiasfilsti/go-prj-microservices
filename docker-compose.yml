@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  auth-api-db-test:
+      image: postgres:17.2
+      restart: always
+      shm_size: 128mb
+      environment:
+        POSTGRES_PASSWORD: 'authapipass'
+        POSTGRES_USER: 'authapi'
+        POSTGRES_DB: 'auth-api'
+      ports:
+        - 5432:5432
+      volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
