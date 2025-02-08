@@ -26,7 +26,7 @@ func (r *UserRepository) Get(ctx context.Context, name string) (*models.User, er
 }
 
 func (r *UserRepository) Save(ctx context.Context, user models.User) error {
-	_, err := r.db.NewInsert().Model(user).Exec(ctx)
+	_, err := r.db.NewInsert().Model(&user).Exec(ctx)
 	if err != nil {
 		if err, ok := err.(pgdriver.Error); ok && err.IntegrityViolation() {
 			return errors.New("error inserting in database")

@@ -21,6 +21,10 @@ func (s *UserService) GetUser() {
 }
 
 func (s *UserService) SaveUser(ctx context.Context, user models.User) error {
+	err := userValidate(user)
+	if err != nil {
+		return err
+	}
 	return s.repo.Save(ctx, user)
 }
 
