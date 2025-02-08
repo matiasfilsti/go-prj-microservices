@@ -18,6 +18,8 @@ func (s *Server) Ping(c *gin.Context) {
 func (s *Server) SaveUser(c *gin.Context) {
 	var user models.User
 	var ierr *error.InputError
+	var cerr *error.ConstraingError
+	var eerr *error.PasswordHashError
 	if err := c.ShouldBindJSON(&user); err != nil {
 		RespondHttpError(c, http.StatusBadRequest, err, "Invalid Body Data")
 	}
@@ -26,8 +28,17 @@ func (s *Server) SaveUser(c *gin.Context) {
 		switch {
 		case errors.As(err, &ierr):
 			RespondHttpError(c, http.StatusBadRequest, err, "Invalid user information, user or password doesnt meet the requirements")
+			return
+		case errors.As(err, &cerr):
+			RespondHttpError(c, http.StatusBadRequest, err, "Constrain error, user already present")
+			return
+		case errors.As(err, &eerr):
+			RespondHttpError(c, http.StatusInternalServerError, err, "Internal server error, password encryption problem")
+			return
 		}
+
 		RespondHttpError(c, http.StatusInternalServerError, err, "Error saving user, internal-server error")
+		return
 	}
 	c.JSON(http.StatusOK, user)
 }

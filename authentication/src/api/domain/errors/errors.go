@@ -27,3 +27,17 @@ func NewConstraingError(msg string) *ConstraingError {
 		Msg: msg,
 	}
 }
+
+type PasswordHashError struct {
+	Msg string
+}
+
+func (e *PasswordHashError) Error() string {
+	return e.Msg
+}
+
+func NewPasswordHashError(msg string) *PasswordHashError {
+	return &PasswordHashError{
+		Msg: msg,
+	}
+}

@@ -25,7 +25,16 @@ func (s *UserService) SaveUser(ctx context.Context, user models.User) error {
 	if err != nil {
 		return err
 	}
-	return s.repo.Save(ctx, user)
+	encriptedPassword, err := hashPassword(user.Password)
+	if err != nil {
+		return err
+	}
+	userEncrypted := models.User{
+		Name:     user.Name,
+		Password: encriptedPassword,
+	}
+
+	return s.repo.Save(ctx, userEncrypted)
 }
 
 func (s *UserService) DeleteUser() {

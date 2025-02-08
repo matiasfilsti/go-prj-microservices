@@ -1,9 +1,9 @@
 package repositories
 
 import (
+	"authentication/src/api/domain/errors"
 	"authentication/src/api/domain/models"
 	"context"
-	"errors"
 
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -29,7 +29,8 @@ func (r *UserRepository) Save(ctx context.Context, user models.User) error {
 	_, err := r.db.NewInsert().Model(&user).Exec(ctx)
 	if err != nil {
 		if err, ok := err.(pgdriver.Error); ok && err.IntegrityViolation() {
-			return errors.New("error inserting in database")
+			// return errors.New("error inserting in database")
+			errors.NewConstraingError("problem inserting data, error contrain")
 		}
 		return err
 	}
