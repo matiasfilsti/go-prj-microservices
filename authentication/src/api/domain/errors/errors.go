@@ -41,3 +41,17 @@ func NewPasswordHashError(msg string) *PasswordHashError {
 		Msg: msg,
 	}
 }
+
+type UserNotFoundError struct {
+	Msg string
+}
+
+func (e *UserNotFoundError) Error() string {
+	return e.Msg
+}
+
+func NewUserNotFoundError(msg string) *UserNotFoundError {
+	return &UserNotFoundError{
+		Msg: msg,
+	}
+}

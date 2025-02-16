@@ -10,4 +10,5 @@ type UserRepository interface {
 	Save(ctx context.Context, user models.User) error
 	Update(ctx context.Context, user models.User) error
 	Delete(ctx context.Context, name string) error
+	// CompareUserPassword(ctx context.Context, user models.User) error
 }

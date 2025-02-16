@@ -12,4 +12,6 @@ func (s *Server) ConfigureRouter() {
 
 	s.Router.GET("/ping", s.Ping)
 	s.Router.POST("/save", s.SaveUser)
+	s.Router.GET("/allowedusers", s.AllowedUser)
+	s.Router.GET("/get/:name", s.GetUser)
 }

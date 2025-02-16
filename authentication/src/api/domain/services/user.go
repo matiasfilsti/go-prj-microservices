@@ -16,8 +16,8 @@ func NewUserService(repo contracts.UserRepository) UserService {
 	}
 }
 
-func (s *UserService) GetUser() {
-
+func (s *UserService) GetUser(ctx context.Context, username string) (*models.User, error) {
+	return s.repo.Get(ctx, username)
 }
 
 func (s *UserService) SaveUser(ctx context.Context, user models.User) error {
@@ -45,6 +45,15 @@ func (s *UserService) UpdateUser() {
 
 }
 
-func (s *UserService) ComparePassword() {
+func (s *UserService) CompareUserPassword(ctx context.Context, user models.User) (bool, error) {
+	err := userValidate(user)
+	if err != nil {
+		return false, err
+	}
+	dbUserEncripted, err := s.repo.Get(ctx, user.Name)
+	if err != nil {
+		return false, err
+	}
+	return checkPasswordHash(user.Password, dbUserEncripted.Password), nil
 
 }

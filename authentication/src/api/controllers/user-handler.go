@@ -11,7 +11,6 @@ import (
 )
 
 func (s *Server) Ping(c *gin.Context) {
-	s.Core.UserService.GetUser()
 	c.String(http.StatusOK, "pong")
 }
 
@@ -41,4 +40,50 @@ func (s *Server) SaveUser(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, user)
+}
+
+func (s *Server) GetUser(c *gin.Context) {
+	name := c.Param("name")
+	var nerr *error.UserNotFoundError
+	var userdb *models.User
+	userdb, err := s.Core.UserService.GetUser(c, name)
+	if err != nil {
+		switch {
+		case errors.As(err, &nerr):
+			RespondHttpError(c, http.StatusNotFound, err, "Invalid name, user not found")
+			return
+		}
+
+		RespondHttpError(c, http.StatusInternalServerError, err, "Error comparing user, internal-server error")
+		return
+	}
+	c.JSON(http.StatusOK, userdb)
+}
+
+func (s *Server) AllowedUser(c *gin.Context) {
+	var user models.User
+	var ierr *error.InputError
+	var nerr *error.UserNotFoundError
+	if err := c.ShouldBindJSON(&user); err != nil {
+		RespondHttpError(c, http.StatusBadRequest, err, "Invalid Body Data")
+	}
+	fmt.Println(user)
+	valid, err := s.Core.UserService.CompareUserPassword(c, user)
+	if err != nil {
+		switch {
+		case errors.As(err, &ierr):
+			RespondHttpError(c, http.StatusBadRequest, err, "Invalid user information")
+			return
+		case errors.As(err, &nerr):
+			RespondHttpError(c, http.StatusInternalServerError, err, "Invalid name, user not found")
+			return
+		}
+
+		RespondHttpError(c, http.StatusInternalServerError, err, "Error comparing user, internal-server error")
+		return
+	}
+	if !valid {
+		RespondHttpValidUser(c, http.StatusUnauthorized, valid, "User not allowed")
+	}
+	RespondHttpValidUser(c, http.StatusOK, valid, "User allowed")
 }

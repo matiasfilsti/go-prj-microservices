@@ -14,3 +14,16 @@ type HttpError struct {
 	Error       string `json:"error"`
 	Description string `json:"description"`
 }
+
+func RespondHttpValidUser(c *gin.Context, status int, valid bool, desc string) {
+	errorResponse := ValidUser{
+		Valid:       valid,
+		Description: desc,
+	}
+	c.JSON(status, errorResponse)
+}
+
+type ValidUser struct {
+	Valid       bool   `json:"valid"`
+	Description string `json:"description"`
+}
