@@ -23,7 +23,7 @@ func NewUserRepository(db *bun.DB) *UserRepository {
 
 func (r *UserRepository) Get(ctx context.Context, name string) (*models.User, error) {
 	s := &models.User{}
-	err := r.db.NewSelect().Model(s).Table("users").Where("users.name = ?", name).Scan(ctx)
+	err := r.db.NewSelect().Model(s).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errorcustom.NewUserNotFoundError("user not found")

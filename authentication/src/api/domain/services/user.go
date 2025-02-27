@@ -4,6 +4,7 @@ import (
 	"authentication/src/api/domain/contracts"
 	"authentication/src/api/domain/models"
 	"context"
+	"fmt"
 )
 
 type UserService struct {
@@ -54,6 +55,7 @@ func (s *UserService) CompareUserPassword(ctx context.Context, user models.User)
 	if err != nil {
 		return false, err
 	}
+	fmt.Println(dbUserEncripted, user)
 	return checkPasswordHash(user.Password, dbUserEncripted.Password), nil
 
 }

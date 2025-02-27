@@ -6,6 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) Ping(c *gin.Context) {
+func (s *Server) Producer(c *gin.Context) {
 	c.String(http.StatusOK, "pong")
 }

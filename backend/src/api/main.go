@@ -13,5 +13,5 @@ func main() {
 func run() {
 	srv := controllers.NewServer(gin.New())
 	srv.ConfigureRouter()
-	srv.Router.Run(":8000")
+	srv.Router.Run(":8081")
 }
