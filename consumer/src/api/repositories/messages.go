@@ -46,8 +46,8 @@ func (m *MessageRepository) Read() {
 	)
 	failOnError(err, "Failed to register a consumer")
 
-	var forever chan struct{}
-
+	// var forever chan struct{}
+	var forever = make(chan struct{})
 	go func() {
 		for d := range msgs {
 			log.Printf("Received a message: %s", d.Body)
