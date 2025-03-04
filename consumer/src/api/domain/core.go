@@ -1,8 +1,8 @@
 package domain
 
 import (
-	"backend/src/api/domain/services"
-	"backend/src/api/repositories"
+	"consumer/src/api/domain/services"
+	"consumer/src/api/repositories"
 )
 
 type Core struct {

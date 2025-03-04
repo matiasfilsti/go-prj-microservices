@@ -20,6 +20,24 @@ services:
         DB_HOSTNAME: 'auth-api-db-test'
       ports:
         - 8080:8080
+  backend-service:
+      image: back:v1.0
+      restart: always
+      environment:
+        MQ_HOSTNAME: 'rabbitmq-service'
+        AUTH_HOSTNAME: 'authentication-service'
+      ports:
+        - 8081:8081
+  rabbitmq-service:
+      image: rabbitmq:4.0.7-management
+      restart: always
+      environment:
+        DB_HOSTNAME: 'auth-api-db-test'
+        RABBITMQ_DEFAULT_USER: 'backUser'
+        RABBITMQ_DEFAULT_PASS: 'backPassword'
+      ports:
+        - 8082:15672
+        - 5672:5672
 
 volumes:
   db_data:
