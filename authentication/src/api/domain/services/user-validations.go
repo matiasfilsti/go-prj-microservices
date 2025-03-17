@@ -3,6 +3,9 @@ package services
 import (
 	"authentication/src/api/domain/errors"
 	"authentication/src/api/domain/models"
+	"crypto/rand"
+	"encoding/base64"
+	"fmt"
 	"regexp"
 )
 
@@ -25,4 +28,12 @@ func validatePassword(password string) bool {
 
 func validateName(name string) bool {
 	return namePattern.MatchString(name)
+}
+
+func GenerateToken() string {
+	bytes := make([]byte, 8)
+	if _, err := rand.Read(bytes); err != nil {
+		fmt.Println("Error creando token:", err)
+	}
+	return base64.URLEncoding.EncodeToString(bytes)
 }

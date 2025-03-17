@@ -3,8 +3,6 @@ package config
 import "os"
 
 var (
-	AuthHostname     = getEnv("AUTH_HOSTNAME", "localhost")
-	AuthPort         = getEnv("AUTH_PORT", "8080")
 	RabbitMQHostname = getEnv("MQ_HOSTNAME", "localhost")
 	RabbitMQUser     = getEnv("MQ_USER", "backUser")
 	RabbitMQPassword = getEnv("MQ_PASSWORD", "backPassword")

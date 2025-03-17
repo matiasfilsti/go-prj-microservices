@@ -3,36 +3,29 @@ package middleware
 import (
 	"backend/src/api/client"
 	"backend/src/api/controllers/ctrserrors"
-	"backend/src/api/domain/models"
-	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func AuthorizedUser(s *client.ClientHttp) gin.HandlerFunc {
+func AuthorizedUserV2(s *client.ClientHttp) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		var user models.User
 		var validResponse ValidUser
 
-		if err := c.ShouldBindJSON(&user); err != nil {
-			ctrserrors.RespondHttpError(c, http.StatusBadRequest, err, "Invalid Body Data")
-			c.Abort()
-			return
-		}
-		// before request
-		body, err := encodeStructToJson(user)
-		if err != nil {
-			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error trying encode body data")
+		user, password, ok := c.Request.BasicAuth()
+		fmt.Println(user, password, ok)
+		if !ok {
+			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, errors.New("basic Auth error"), "error trying to read user, password")
 			c.Abort()
 			return
 		}
 
-		resp, err := s.AthznRequestV1(body)
+		resp, err := s.AthznRequestV2(user, password)
 		if err != nil {
 			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error trying to authenticate")
 			c.Abort()
@@ -41,6 +34,7 @@ func AuthorizedUser(s *client.ClientHttp) gin.HandlerFunc {
 		defer resp.Body.Close()
 
 		respBody, _ := io.ReadAll(resp.Body)
+		fmt.Println(respBody, resp)
 		err = json.Unmarshal(respBody, &validResponse)
 		if err != nil {
 			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error reading response data")
@@ -57,20 +51,14 @@ func AuthorizedUser(s *client.ClientHttp) gin.HandlerFunc {
 	}
 }
 
-func encodeStructToJson(data models.User) (io.Reader, error) {
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
-	}
-	return bytes.NewReader(jsonData), nil
-}
+// func athznRequestV2(httpclient *http.Client, user string, password string) (*http.Response, error) {
 
-// func athznRequest(httpclient *http.Client, body io.Reader) (*http.Response, error) {
-// 	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%v/allowedusers", config.AuthHostname, config.AuthPort), body)
+// 	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%v/allowedusersV2", config.AuthHostname, config.AuthPort), nil)
 // 	if err != nil {
 // 		fmt.Println("Error creando la solicitud:", err)
 // 		return nil, err
 // 	}
+// 	req.SetBasicAuth(user, password)
 // 	req.Header.Set("Content-Type", "application/json")
 // 	return httpclient.Do(req)
 // }

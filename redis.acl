@@ -1,0 +1,2 @@
+user matias on >testpassword ~user-:* +GET +SET
+user admin on >adminpassword ~* +@all

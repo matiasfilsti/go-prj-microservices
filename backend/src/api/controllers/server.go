@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"backend/src/api/client"
 	"backend/src/api/domain"
 
 	"github.com/gin-gonic/gin"
@@ -9,11 +10,13 @@ import (
 type Server struct {
 	Router   *gin.Engine
 	RabbitCh *domain.Core
+	Hclient  *client.ClientHttp
 }
 
-func NewServer(router *gin.Engine, core *domain.Core) *Server {
+func NewServer(router *gin.Engine, core *domain.Core, hclient *client.ClientHttp) *Server {
 	return &Server{
 		Router:   router,
 		RabbitCh: core,
+		Hclient:  hclient,
 	}
 }

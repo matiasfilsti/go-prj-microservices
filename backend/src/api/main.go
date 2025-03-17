@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/src/api/client"
 	"backend/src/api/controllers"
 	"backend/src/api/domain"
 
@@ -12,7 +13,9 @@ func main() {
 }
 
 func run() {
-	srv := controllers.NewServer(gin.New(), domain.NewCore())
+	httpclient := client.CreateHttpClient()
+	hclientController := client.NewClientHttp(httpclient)
+	srv := controllers.NewServer(gin.New(), domain.NewCore(), hclientController)
 	srv.ConfigureRouter()
 	srv.Router.Run(":8081")
 }

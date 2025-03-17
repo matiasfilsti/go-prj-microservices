@@ -38,12 +38,18 @@ func (s *UserService) SaveUser(ctx context.Context, user models.User) error {
 	return s.repo.Save(ctx, userEncrypted)
 }
 
-func (s *UserService) DeleteUser() {
-
-}
-
-func (s *UserService) UpdateUser() {
-
+func (s *UserService) GenerateTokenUser(ctx context.Context, username string) (string, string, error) {
+	sessionToken := GenerateToken()
+	csrfToken := GenerateToken()
+	dbUser, err := s.repo.Get(ctx, username)
+	if err != nil {
+		return "", "", err
+	}
+	err = s.repo.UpdateToken(ctx, *dbUser, sessionToken, csrfToken)
+	if err != nil {
+		return "", "", err
+	}
+	return sessionToken, csrfToken, nil
 }
 
 func (s *UserService) CompareUserPassword(ctx context.Context, user models.User) (bool, error) {

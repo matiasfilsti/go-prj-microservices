@@ -1,8 +1,8 @@
 package repositories
 
 import (
+	errors "backend/src/api/domain/errors"
 	"context"
-	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -18,7 +18,7 @@ func NewMessageRepository(ch *amqp.Channel) MessageRepository {
 
 }
 
-func (m *MessageRepository) Send(ctx context.Context) {
+func (m *MessageRepository) Send(ctx context.Context) error {
 	body := "Hello World!"
 	err := m.ch.PublishWithContext(ctx,
 		"",      // exchange
@@ -29,7 +29,8 @@ func (m *MessageRepository) Send(ctx context.Context) {
 			ContentType: "text/plain",
 			Body:        []byte(body),
 		})
-	failOnError(err, "Failed to publish a message")
-	log.Printf(" [x] Sent %s\n", body)
+	if err != nil {
+		return errors.NewRabbitmqMsgError("error sending message to rabbit")
+	}
 
 }

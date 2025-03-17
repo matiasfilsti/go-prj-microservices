@@ -44,7 +44,11 @@ func (r *UserRepository) Save(ctx context.Context, user models.User) error {
 	return nil
 }
 
-func (r *UserRepository) Update(ctx context.Context, user models.User) error {
+func (r *UserRepository) UpdateToken(ctx context.Context, user models.User, sessiontoken string, crsftoken string) error {
+	_, err := r.db.NewUpdate().Model(&user).Set("session_token = ?", sessiontoken).Set("csrf_token = ?", crsftoken).Where("name = ?", user.Name).Exec(ctx)
+	if err != nil {
+		return errorcustom.NewUserTokenUpdateError("error updating token in database")
+	}
 	return nil
 }
 

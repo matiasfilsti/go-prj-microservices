@@ -17,6 +17,6 @@ func NewMessageService(repo contracts.MessageService) MessageService {
 
 }
 
-func (m *MessageService) SendMessageToQueue(ctx context.Context) {
-	m.repo.Send(ctx)
+func (m *MessageService) SendMessageToQueue(ctx context.Context) error {
+	return m.repo.Send(ctx)
 }

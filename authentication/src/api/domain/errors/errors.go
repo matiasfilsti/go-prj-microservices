@@ -55,3 +55,17 @@ func NewUserNotFoundError(msg string) *UserNotFoundError {
 		Msg: msg,
 	}
 }
+
+type UserTokenUpdateError struct {
+	Msg string
+}
+
+func (e *UserTokenUpdateError) Error() string {
+	return e.Msg
+}
+
+func NewUserTokenUpdateError(msg string) *UserTokenUpdateError {
+	return &UserTokenUpdateError{
+		Msg: msg,
+	}
+}
