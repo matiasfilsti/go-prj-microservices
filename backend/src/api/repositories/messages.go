@@ -32,5 +32,5 @@ func (m *MessageRepository) Send(ctx context.Context) error {
 	if err != nil {
 		return errors.NewRabbitmqMsgError("error sending message to rabbit")
 	}
-
+	return nil
 }

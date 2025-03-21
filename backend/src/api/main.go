@@ -15,7 +15,9 @@ func main() {
 func run() {
 	httpclient := client.CreateHttpClient()
 	hclientController := client.NewClientHttp(httpclient)
-	srv := controllers.NewServer(gin.New(), domain.NewCore(), hclientController)
+	redisClient := client.CreateRedisClient()
+	rdsClient := client.NewClientRedis(redisClient)
+	srv := controllers.NewServer(gin.New(), domain.NewCore(), hclientController, rdsClient)
 	srv.ConfigureRouter()
 	srv.Router.Run(":8081")
 }

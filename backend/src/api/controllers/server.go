@@ -8,15 +8,17 @@ import (
 )
 
 type Server struct {
-	Router   *gin.Engine
-	RabbitCh *domain.Core
-	Hclient  *client.ClientHttp
+	Router    *gin.Engine
+	RabbitCh  *domain.Core
+	Hclient   *client.ClientHttp
+	RdsClient *client.ClientRedis
 }
 
-func NewServer(router *gin.Engine, core *domain.Core, hclient *client.ClientHttp) *Server {
+func NewServer(router *gin.Engine, core *domain.Core, hclient *client.ClientHttp, rdsClient *client.ClientRedis) *Server {
 	return &Server{
-		Router:   router,
-		RabbitCh: core,
-		Hclient:  hclient,
+		Router:    router,
+		RabbitCh:  core,
+		Hclient:   hclient,
+		RdsClient: rdsClient,
 	}
 }
