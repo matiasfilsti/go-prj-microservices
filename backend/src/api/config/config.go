@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
 var (
 	AuthHostname = getEnv("AUTH_HOSTNAME", "localhost")
@@ -12,10 +15,10 @@ var (
 	RabbitMQPort     = getEnv("MQ_PORT", "5672")
 
 	RedisHostname = getEnv("REDIS_HOSTNAME", "localhost")
-	RedisPort     = getEnv("REDIS_PORT", "6389")
-	RedisDb       = getEnv("REDIS_DB", "0")
+	RedisPort     = getEnv("REDIS_PORT", "6379")
 	RedisPassword = getEnv("REDIS_PASSWORD", "testpassword")
 	RedisUser     = getEnv("REDIS_USER", "testuser")
+	RedisTTL      = getEnvInt("REDIS_TTL", 1800)
 )
 
 func getEnv(key string, defaultValue string) string {
@@ -24,5 +27,13 @@ func getEnv(key string, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
 
+func getEnvInt(key string, defaultValue int) int {
+	value, ok := os.LookupEnv(key)
+	if ok {
+		num, _ := strconv.Atoi(value)
+		return num
+	}
+	return defaultValue
 }

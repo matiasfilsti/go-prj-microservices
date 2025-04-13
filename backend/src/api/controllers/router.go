@@ -24,9 +24,9 @@ func (s *Server) ConfigureRouter() {
 	{
 		autorizedV2.POST("/producerV2", s.Producer)
 	}
-	autorizedV3.Use(middleware.AuthorizedUserV3())
+	autorizedV3.Use(middleware.AuthorizedUserV3(s.RdsClient))
 	{
-		autorizedV2.POST("/producerV3", s.Producer)
+		autorizedV3.POST("/producerV3", s.Producer)
 	}
 
 	s.Router.GET("/ping", s.Ping)

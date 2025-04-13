@@ -41,6 +41,7 @@ func (hc *ClientHttp) DoLoginReq(user string) (*http.Response, error) {
 
 func (hc *ClientHttp) LoginRequest(user string, password string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%v/allowedusersLogin", config.AuthHostname, config.AuthPort), nil)
+	fmt.Println(req)
 	if err != nil {
 		fmt.Println("Error creando la solicitud:", err)
 		return nil, err
