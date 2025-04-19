@@ -29,22 +29,19 @@ func CreateHttpClient() *http.Client {
 	}
 }
 
-func (hc *ClientHttp) DoLoginReq(user string) (*http.Response, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%v/get/%s", config.AuthHostname, config.AuthPort, user), nil)
-	if err != nil {
-		fmt.Println("Error creando la solicitud:", err)
-		return nil, err
-	}
-	return hc.client.Do(req)
+// func (hc *ClientHttp) DoLoginReq(user string) (*http.Response, error) {
+// 	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%v/get/%s", config.AuthHostname, config.AuthPort, user), nil)
+// 	if err != nil {
+// 		return nil, NewHttpReqCreationError("error creating request for login")
+// 	}
+// 	return hc.client.Do(req)
 
-}
+// }
 
 func (hc *ClientHttp) LoginRequest(user string, password string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%v/allowedusersLogin", config.AuthHostname, config.AuthPort), nil)
-	fmt.Println(req)
 	if err != nil {
-		fmt.Println("Error creando la solicitud:", err)
-		return nil, err
+		return nil, NewHttpReqCreationError("error creating request for allowed users on login")
 	}
 	req.SetBasicAuth(user, password)
 	req.Header.Set("Content-Type", "application/json")
@@ -54,8 +51,7 @@ func (hc *ClientHttp) LoginRequest(user string, password string) (*http.Response
 func (hc *ClientHttp) AthznRequestV1(body io.Reader) (*http.Response, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%v/allowedusers", config.AuthHostname, config.AuthPort), body)
 	if err != nil {
-		fmt.Println("Error creando la solicitud:", err)
-		return nil, err
+		return nil, NewHttpReqCreationError("error creating request for authorizantion V1 request")
 	}
 	req.Header.Set("Content-Type", "application/json")
 	return hc.client.Do(req)
@@ -65,8 +61,7 @@ func (hc *ClientHttp) AthznRequestV2(user string, password string) (*http.Respon
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%v/allowedusersV2", config.AuthHostname, config.AuthPort), nil)
 	if err != nil {
-		fmt.Println("Error creando la solicitud:", err)
-		return nil, err
+		return nil, NewHttpReqCreationError("error creating request for authorizantion V2 request")
 	}
 	req.SetBasicAuth(user, password)
 	req.Header.Set("Content-Type", "application/json")

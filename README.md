@@ -4,12 +4,16 @@ microservices project
 # Log into DB
 psql -d auth-api -U authapi
 
---- cambiar allowed user por login
-si login da ok le podes pegar a producer
-ese producer tiene que guardar en una base de datos un token
-o que lo guarde auth y lo consulto ahi
 
 
+TTL <nombre_de_la_clave>
+HGETALL <nombre_del_hash>
+GET <nombre_de_la_clave>
+KEYS *
+
+ver usuarios 
+acl list
+ACL GETUSER <nombre_del_usuario>
 
 package main
 
@@ -31,6 +35,8 @@ func main() {
 
     r.Run(":8080")
 }
+
+
 
 func AuthMiddleware() gin.HandlerFunc {
     return func(c *gin.Context) {

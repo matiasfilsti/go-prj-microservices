@@ -64,13 +64,3 @@ func encodeStructToJson(data models.User) (io.Reader, error) {
 	}
 	return bytes.NewReader(jsonData), nil
 }
-
-// func athznRequest(httpclient *http.Client, body io.Reader) (*http.Response, error) {
-// 	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%v/allowedusers", config.AuthHostname, config.AuthPort), body)
-// 	if err != nil {
-// 		fmt.Println("Error creando la solicitud:", err)
-// 		return nil, err
-// 	}
-// 	req.Header.Set("Content-Type", "application/json")
-// 	return httpclient.Do(req)
-// }

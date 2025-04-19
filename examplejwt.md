@@ -102,3 +102,30 @@ func main() {
 
     r.Run(":8080") // Ejecutar el servidor en el puerto 8080
 }
+
+
+
+Explicación del código
+Generar el JWT:
+
+La función generateJWT crea un token con:
+
+Un UserID como claim personalizado.
+
+Claims registrados como ExpiresAt (expiración) y IssuedAt (momento de emisión).
+
+El token se firma con una clave secreta (HS256).
+
+Middleware para Validación:
+
+El middleware jwtMiddleware toma el token del encabezado Authorization.
+
+Usa la función ParseWithClaims para validar la firma del token y extraer los claims.
+
+Si el token es válido, guarda el UserID en el contexto para que las rutas protegidas puedan usarlo.
+
+Rutas de Ejemplo:
+
+/login: Genera un JWT al iniciar sesión.
+
+/protegido: Ruta que requiere un token válido. Si el token es válido, responde con el UserID.

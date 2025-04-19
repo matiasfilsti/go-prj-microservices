@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"backend/src/api/client"
 	"backend/src/api/controllers/ctrserrors"
 	"backend/src/api/domain/models"
 	"encoding/json"
@@ -13,8 +14,11 @@ import (
 )
 
 func (s *Server) Login(c *gin.Context) {
+	var rerr *ctrserrors.ReadBodyResponseError
+	var jerr *ctrserrors.JsonImportError
+	var herr *client.HttpReqCreationError
+	var serr *client.RedisUserSaveError
 
-	var validResponse models.ValidUser
 	user, password, ok := c.Request.BasicAuth()
 	fmt.Println(user, password, ok)
 	if !ok {
@@ -24,6 +28,17 @@ func (s *Server) Login(c *gin.Context) {
 
 	validResponse, err := authenticateUser(s, user, password)
 	if err != nil {
+		switch {
+		case errors.As(err, &rerr):
+			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "reading response authentincation error")
+			return
+		case errors.As(err, &jerr):
+			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "reading importing response authentincation error")
+			return
+		case errors.As(err, &herr):
+			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "reading authentication request")
+			return
+		}
 		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "error trying to authenticate")
 		return
 	}
@@ -33,8 +48,15 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 
-	if err := SaveSessionUser(s, c, user, validResponse.SessionToken, validResponse.CSRFToken); err != nil {
-		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "redis issue")
+	err = SaveSessionUser(s, c, user, validResponse.SessionToken, validResponse.CSRFToken)
+	if err != nil {
+		switch {
+		case errors.As(err, &serr):
+			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "saving user into redis error")
+			return
+		}
+		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "redis failing - internal server error")
+		return
 	}
 	setCookies(c, validResponse.SessionToken, validResponse.CSRFToken, user)
 
@@ -47,26 +69,23 @@ func setCookies(c *gin.Context, session_token string, csrf_token string, user st
 	c.SetCookie("auth-user", user, 200, "/", "", false, false)
 }
 
-func authenticateUser(s *Server, user, password string) (models.ValidUser, error) {
-	var validResponse models.ValidUser
+func authenticateUser(s *Server, user, password string) (*models.ValidUser, error) {
+	var validResponse *models.ValidUser
 
 	resp, err := s.Hclient.LoginRequest(user, password)
-	fmt.Println(resp, err)
 	if err != nil {
 		return validResponse, err
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
-	fmt.Println(string(respBody), err)
 	if err != nil {
-		return validResponse, err
+		return validResponse, ctrserrors.NewReadBodyResponseError("error reading response body")
 	}
 
 	err = json.Unmarshal(respBody, &validResponse)
-	fmt.Println(err)
 	if err != nil {
-		return validResponse, err
+		return validResponse, ctrserrors.NewJsonImportError("error importing json into model")
 	}
 
 	return validResponse, nil
@@ -78,82 +97,3 @@ func SaveSessionUser(s *Server, c *gin.Context, user string, session_token strin
 	}
 	return nil
 }
-
-// func (s *Server) Login(c *gin.Context) {
-// 	var loginUser models.LoginUser
-// 	user, password, ok := c.Request.BasicAuth()
-// 	fmt.Println(user, password, ok)
-// 	if !ok {
-// 		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, errors.New("basic Auth error"), "error trying to read user, password")
-// 		return
-// 	}
-
-// 	resp, err := s.Hclient.DoLoginReq(user)
-// 	fmt.Println(resp, err)
-// 	if err != nil {
-// 		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error trying to authenticate")
-// 		return
-// 	}
-// 	defer resp.Body.Close()
-
-// 	respBody, _ := io.ReadAll(resp.Body)
-// 	fmt.Println(respBody, resp)
-// 	err = json.Unmarshal(respBody, &loginUser)
-// 	if err != nil {
-// 		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error reading response data")
-// 		return
-// 	}
-// 	userValidation()
-// }
-
-// func userValidation(password string, dbUser models.LoginUser) {
-// 	hashedPassword, err := hashPassword(password)
-// 	if hashedPassword != dbUser.Password {
-// 		return false
-// 	}
-// 	return true
-// }
-
-// func getUserAuth(user string) (*http.Response, error) {
-// 	httpclient := client.CreateHttpClient()
-// 	req, err := http.NewRequest("GET", fmt.Sprintf("http://%s:%v/get/%s", config.AuthHostname, config.AuthPort, user), nil)
-// 	if err != nil {
-// 		fmt.Println("Error creando la solicitud:", err)
-// 		return nil, err
-// 	}
-// 	return httpclient.Do(req)
-// }
-
-// c.SetCookie(
-// 	"session_token",
-// 	validResponse.SessionToken,
-// 	200,
-// 	"/",
-// 	"",
-// 	false,
-// 	true,
-// )
-// c.SetCookie(
-// 	"csrf_token",
-// 	validResponse.SessionToken,
-// 	200,
-// 	"/",
-// 	"",
-// 	false,
-// 	false,
-// )
-
-// resp, err := s.Hclient.LoginRequest(user, password)
-// if err != nil {
-// 	ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error trying to authenticate")
-// 	return
-// }
-// defer resp.Body.Close()
-
-// respBody, _ := io.ReadAll(resp.Body)
-// fmt.Println(string(respBody), resp)
-// err = json.Unmarshal(respBody, &validResponse)
-// if err != nil {
-// 	ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error reading response data")
-// 	return
-// }

@@ -14,14 +14,14 @@ services:
       volumes:
       - db_data:/var/lib/postgresql/data
   authentication-service:
-      image: auth:v1.5
+      image: auth:1.6
       restart: always
       environment:
         DB_HOSTNAME: 'auth-api-db-test'
       ports:
         - 8080:8080
   backend-service:
-      image: back:v1.1
+      image: back:v1.2
       restart: always
       environment:
         MQ_HOSTNAME: 'rabbitmq-service'
@@ -33,7 +33,8 @@ services:
       restart: always
       volumes:
         - ./redis.acl:/data/redis.acl
-      command: ["redis-server", "--loadmodule", "/data/redis.acl"]
+      # command: ["redis-server", "--loadmodule", "/data/redis.acl"]
+      command: ["/bin/sh", "-c", "chmod 644 /data/redis.acl && redis-server --aclfile /data/redis.acl"]
       ports:
         - 6379:6379
   rabbitmq-service:
