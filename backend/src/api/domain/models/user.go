@@ -12,6 +12,12 @@ type ValidUser struct {
 	CSRFToken    string `json:"csrftoken"`
 }
 
+type ValidUserJwt struct {
+	Valid       bool   `json:"valid"`
+	Description string `json:"description"`
+	JwtToken    string `json:"jwttoken"`
+}
+
 type UserV struct {
 	Name         string `json:"name"`
 	Password     string `json:"password"`

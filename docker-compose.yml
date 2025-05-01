@@ -14,7 +14,7 @@ services:
       volumes:
       - db_data:/var/lib/postgresql/data
   authentication-service:
-      image: auth:1.6
+      image: auth:v2.2
       restart: always
       environment:
         DB_HOSTNAME: 'auth-api-db-test'

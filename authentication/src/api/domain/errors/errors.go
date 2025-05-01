@@ -69,3 +69,17 @@ func NewUserTokenUpdateError(msg string) *UserTokenUpdateError {
 		Msg: msg,
 	}
 }
+
+type JwtParseError struct {
+	Msg string
+}
+
+func (e *JwtParseError) Error() string {
+	return e.Msg
+}
+
+func NewJwtParseError(msg string) *JwtParseError {
+	return &JwtParseError{
+		Msg: msg,
+	}
+}

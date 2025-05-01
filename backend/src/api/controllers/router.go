@@ -14,6 +14,7 @@ func (s *Server) ConfigureRouter() {
 	autorized := s.Router.Group("/")
 	autorizedV2 := s.Router.Group("/")
 	autorizedV3 := s.Router.Group("/")
+	autorizedjwt := s.Router.Group("/")
 
 	autorized.Use(middleware.AuthorizedUser(s.Hclient))
 	{
@@ -28,10 +29,14 @@ func (s *Server) ConfigureRouter() {
 	{
 		autorizedV3.POST("/producerV3", s.Producer)
 	}
+	autorizedjwt.Use(middleware.AuthorizedUserJWT(s.Hclient))
+	{
+		autorizedjwt.POST("/producerJWT", s.Producer)
+	}
 
 	s.Router.GET("/ping", s.Ping)
 
 	s.Router.GET("/login", s.Login)
-	// s.Router.GET("/producer-secured", s.ProducerSecured)
+	s.Router.GET("/loginjwt", s.LoginJwt)
 
 }

@@ -15,6 +15,8 @@ func (s *Server) ConfigureRouter() {
 	s.Router.GET("/allowedusers", s.AllowedUser)
 	s.Router.GET("/allowedusersV2", s.AllowedUserV2)
 	s.Router.GET("/allowedusersLogin", s.AllowedUserLogin)
+	s.Router.GET("/allowuserwithjwt", s.AllowUserWithJwt)
+	s.Router.GET("/validateuserjwt", s.ValidateUserJwt)
 	s.Router.GET("/get/:name", s.GetUser)
 
 }

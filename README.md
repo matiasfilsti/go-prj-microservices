@@ -15,6 +15,13 @@ ver usuarios
 acl list
 ACL GETUSER <nombre_del_usuario>
 
+
+
+
+
+Rabbit url
+http://localhost:8082/#/queues
+
 package main
 
 import (

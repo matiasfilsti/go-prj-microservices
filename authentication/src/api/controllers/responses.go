@@ -44,3 +44,18 @@ func RespondHttpValidUserLogin(c *gin.Context, status int, valid bool, sessionTo
 	}
 	c.JSON(status, errorResponse)
 }
+
+type ValidUserJwt struct {
+	Valid       bool   `json:"valid"`
+	Description string `json:"description"`
+	JwtToken    string `json:"jwttoken"`
+}
+
+func RespondHttpValidUserJwt(c *gin.Context, status int, valid bool, jwt string, desc string) {
+	errorResponse := ValidUserJwt{
+		Valid:       valid,
+		JwtToken:    jwt,
+		Description: desc,
+	}
+	c.JSON(status, errorResponse)
+}
