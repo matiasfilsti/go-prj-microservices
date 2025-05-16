@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) AllowUserWithJwt(c *gin.Context) {
+func (s *Server) LoginUserJwt(c *gin.Context) {
 	var name, password string
 	var ierr *error.InputError
 	var nerr *error.UserNotFoundError
@@ -48,7 +48,7 @@ func (s *Server) AllowUserWithJwt(c *gin.Context) {
 	RespondHttpValidUserJwt(c, http.StatusOK, valid, jwtToken, "User allowed")
 }
 
-func (s *Server) ValidateUserJwt(c *gin.Context) {
+func (s *Server) AuthUserJwt(c *gin.Context) {
 	var verr *error.JwtParseError
 	Completetoken := c.GetHeader("Auth-Header")
 	token := strings.TrimPrefix(Completetoken, "Bearer ")

@@ -11,11 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthorizedUserJWT(s *client.ClientHttp) gin.HandlerFunc {
+func AuthorizedUserWithJWT(s *client.ClientHttp) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		var validResponse ValidUser
-		resp, err := s.AthznRequestJwt(c)
+		resp, err := s.AuthRequestWithJwt(c)
 		if err != nil {
 			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error trying to authenticate")
 			c.Abort()

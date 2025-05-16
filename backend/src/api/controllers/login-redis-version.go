@@ -13,10 +13,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) LoginJwt(c *gin.Context) {
+func (s *Server) LoginWithRedis(c *gin.Context) {
 	var rerr *ctrserrors.ReadBodyResponseError
 	var jerr *ctrserrors.JsonImportError
 	var herr *client.HttpReqCreationError
+	var serr *client.RedisUserSaveError
 
 	user, password, ok := c.Request.BasicAuth()
 	fmt.Println(user, password, ok)
@@ -25,8 +26,7 @@ func (s *Server) LoginJwt(c *gin.Context) {
 		return
 	}
 
-	validResponse, err := authenticateUserJwt(s, user, password)
-	fmt.Println("respuesta: ", validResponse)
+	validResponse, err := authenticateUser(s, user, password)
 	if err != nil {
 		switch {
 		case errors.As(err, &rerr):
@@ -48,18 +48,31 @@ func (s *Server) LoginJwt(c *gin.Context) {
 		return
 	}
 
-	setHeader(c, validResponse.JwtToken)
+	err = SaveSessionUser(s, c, user, validResponse.SessionToken, validResponse.CSRFToken)
+	if err != nil {
+		switch {
+		case errors.As(err, &serr):
+			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "saving user into redis error")
+			return
+		}
+		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "redis failing - internal server error")
+		return
+	}
+	setCookies(c, validResponse.SessionToken, validResponse.CSRFToken, user)
+
 	c.JSON(200, "user successfully logged")
 }
 
-func setHeader(c *gin.Context, jwt string) {
-	c.Header("Auth-Header", fmt.Sprintf("Bearer %s", jwt))
+func setCookies(c *gin.Context, session_token string, csrf_token string, user string) {
+	c.SetCookie("session_token", session_token, 200, "/", "", false, true)
+	c.SetCookie("csrf_token", csrf_token, 200, "/", "", false, false)
+	c.SetCookie("auth-user", user, 200, "/", "", false, false)
 }
 
-func authenticateUserJwt(s *Server, user, password string) (*models.ValidUserJwt, error) {
-	var validResponse *models.ValidUserJwt
+func authenticateUser(s *Server, user, password string) (*models.ValidUser, error) {
+	var validResponse *models.ValidUser
 
-	resp, err := s.Hclient.LoginJwtRequest(user, password)
+	resp, err := s.Hclient.LoginRequestWithRedis(user, password)
 	if err != nil {
 		return validResponse, err
 	}
@@ -76,4 +89,11 @@ func authenticateUserJwt(s *Server, user, password string) (*models.ValidUserJwt
 	}
 
 	return validResponse, nil
+}
+
+func SaveSessionUser(s *Server, c *gin.Context, user string, session_token string, crsf_token string) error {
+	if err := s.RdsClient.Set(c, fmt.Sprintf("user-%s", user), session_token, crsf_token); err != nil {
+		return err
+	}
+	return nil
 }

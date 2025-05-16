@@ -10,20 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) AllowedUserV2(c *gin.Context) {
-	var name, password string
+func (s *Server) AuthUserJson(c *gin.Context) {
+	var user models.User
 	var ierr *error.InputError
 	var nerr *error.UserNotFoundError
 
-	name, password, ok := c.Request.BasicAuth()
-	if !ok {
-		RespondHttpError(c, http.StatusInternalServerError, errors.New("basic Auth error"), "Error trying to read user, password")
-		c.Abort()
+	if err := c.ShouldBindJSON(&user); err != nil {
+		RespondHttpError(c, http.StatusBadRequest, err, "Invalid Body Data")
 	}
-	user := models.User{
-		Name:     name,
-		Password: password,
-	}
+
 	valid, err := s.Core.UserService.CompareUserPassword(c, user)
 	fmt.Println(valid, err)
 	if err != nil {

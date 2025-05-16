@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthorizedUser(s *client.ClientHttp) gin.HandlerFunc {
+func AuthorizedUserWithJson(s *client.ClientHttp) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		var user models.User
@@ -32,7 +32,7 @@ func AuthorizedUser(s *client.ClientHttp) gin.HandlerFunc {
 			return
 		}
 
-		resp, err := s.AthznRequestV1(body)
+		resp, err := s.AuthRequestWithJson(body)
 		if err != nil {
 			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error trying to authenticate")
 			c.Abort()

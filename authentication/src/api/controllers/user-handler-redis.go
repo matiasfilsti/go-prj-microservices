@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (s *Server) AllowedUserLogin(c *gin.Context) {
+func (s *Server) AuthUserLogin(c *gin.Context) {
 	var name, password string
 	var ierr *error.InputError
 	var nerr *error.UserNotFoundError

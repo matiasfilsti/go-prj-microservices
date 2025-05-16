@@ -16,27 +16,26 @@ func (s *Server) ConfigureRouter() {
 	autorizedV3 := s.Router.Group("/")
 	autorizedjwt := s.Router.Group("/")
 
-	autorized.Use(middleware.AuthorizedUser(s.Hclient))
+	autorized.Use(middleware.AuthorizedUserWithJson(s.Hclient))
 	{
-		autorized.POST("/producer", s.Producer)
+		autorized.POST("/producerjson", s.Producer)
 	}
 
-	autorizedV2.Use(middleware.AuthorizedUserV2(s.Hclient))
+	autorizedV2.Use(middleware.AuthorizedUserWithBasic(s.Hclient))
 	{
-		autorizedV2.POST("/producerV2", s.Producer)
+		autorizedV2.POST("/producerbasic", s.Producer)
 	}
-	autorizedV3.Use(middleware.AuthorizedUserV3(s.RdsClient))
+	autorizedV3.Use(middleware.AuthorizedUserWithRedis(s.RdsClient))
 	{
-		autorizedV3.POST("/producerV3", s.Producer)
+		autorizedV3.POST("/producerredis", s.Producer)
 	}
-	autorizedjwt.Use(middleware.AuthorizedUserJWT(s.Hclient))
+	autorizedjwt.Use(middleware.AuthorizedUserWithJWT(s.Hclient))
 	{
-		autorizedjwt.POST("/producerJWT", s.Producer)
+		autorizedjwt.POST("/producerjwt", s.Producer)
 	}
 
 	s.Router.GET("/ping", s.Ping)
-
-	s.Router.GET("/login", s.Login)
-	s.Router.GET("/loginjwt", s.LoginJwt)
+	s.Router.GET("/loginredis", s.LoginWithRedis)
+	s.Router.GET("/loginjwt", s.LoginWithJwt)
 
 }

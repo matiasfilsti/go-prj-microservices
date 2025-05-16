@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthorizedUserV3(s *client.ClientRedis) gin.HandlerFunc {
+func AuthorizedUserWithRedis(s *client.ClientRedis) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		user, err := getSessionAuth(c)
