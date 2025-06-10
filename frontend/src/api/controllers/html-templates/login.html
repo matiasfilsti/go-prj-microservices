@@ -1,0 +1,17 @@
+
+{{ define "main" }}
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+        <form hx-post="/home" class="p-4 border rounded shadow" style="max-width: 350px; width: 100%;">
+            <div class="text-center mb-4">
+                <img src="/static/security-icon.png" class="rounded" style="max-width: 100px;" alt="security-icon">
+            </div>
+            <div class="mb-3">
+                <input name="username" type="text" class="form-control" placeholder="Usuario" required>
+            </div>
+            <div class="mb-3">
+                <input name="password" type="password" class="form-control" placeholder="Contraseña" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+    </div>
+{{ end }}
