@@ -9,25 +9,26 @@ import (
 func (s *Server) ConfigureRouter() {
 
 	s.Router.Use(gin.Recovery())
+	s.Router.Use(middleware.CORSMiddleware())
 	s.Router.RedirectFixedPath = false
 	s.Router.RedirectTrailingSlash = true
-	autorized := s.Router.Group("/")
-	autorizedV2 := s.Router.Group("/")
-	autorizedV3 := s.Router.Group("/")
+	autorizedJson := s.Router.Group("/")
+	autorizedBasic := s.Router.Group("/")
+	autorizedRedis := s.Router.Group("/")
 	autorizedjwt := s.Router.Group("/")
 
-	autorized.Use(middleware.AuthorizedUserWithJson(s.Hclient))
+	autorizedJson.Use(middleware.AuthorizedUserWithJson(s.Hclient))
 	{
-		autorized.POST("/producerjson", s.Producer)
+		autorizedJson.POST("/producerjson", s.Producer)
 	}
 
-	autorizedV2.Use(middleware.AuthorizedUserWithBasic(s.Hclient))
+	autorizedBasic.Use(middleware.AuthorizedUserWithBasic(s.Hclient))
 	{
-		autorizedV2.POST("/producerbasic", s.Producer)
+		autorizedBasic.POST("/producerbasic", s.Producer)
 	}
-	autorizedV3.Use(middleware.AuthorizedUserWithRedis(s.RdsClient))
+	autorizedRedis.Use(middleware.AuthorizedUserWithRedis(s.RdsClient))
 	{
-		autorizedV3.POST("/producerredis", s.Producer)
+		autorizedRedis.POST("/producerredis", s.Producer)
 	}
 	autorizedjwt.Use(middleware.AuthorizedUserWithJWT(s.Hclient))
 	{
@@ -35,7 +36,7 @@ func (s *Server) ConfigureRouter() {
 	}
 
 	s.Router.GET("/ping", s.Ping)
-	s.Router.GET("/loginredis", s.LoginWithRedis)
+	s.Router.POST("/loginredis", s.LoginWithRedis)
 	s.Router.GET("/loginjwt", s.LoginWithJwt)
 
 }

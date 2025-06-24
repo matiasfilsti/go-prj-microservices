@@ -18,13 +18,18 @@ func (s *Server) LoginWithRedis(c *gin.Context) {
 	var jerr *ctrserrors.JsonImportError
 	var herr *client.HttpReqCreationError
 	var serr *client.RedisUserSaveError
-
-	user, password, ok := c.Request.BasicAuth()
-	fmt.Println(user, password, ok)
-	if !ok {
-		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, errors.New("basic Auth error"), "error trying to read user, password")
+	fmt.Print("LoginWithRedis called\n")
+	user, password := c.Request.FormValue("user"), c.Request.FormValue("password")
+	if user == "" || password == "" {
+		ctrserrors.RespondHttpError(c, http.StatusBadRequest, errors.New("user or password not provided"), "error trying to read user, password")
 		return
 	}
+	// user, password, ok := c.Request.BasicAuth()
+	// fmt.Println(user, password, ok)
+	// if !ok {
+	// 	ctrserrors.RespondHttpError(c, http.StatusInternalServerError, errors.New("basic Auth error"), "error trying to read user, password")
+	// 	return
+	// }
 
 	validResponse, err := authenticateUser(s, user, password)
 	if err != nil {

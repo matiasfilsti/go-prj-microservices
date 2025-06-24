@@ -1,17 +1,27 @@
 
 {{ define "main" }}
-    <div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
-        <form hx-post="/home" class="p-4 border rounded shadow" style="max-width: 350px; width: 100%;">
+    <div class="d-flex justify-content-center align-items-center" hx-ext="response-targets" style="min-height: 70vh;">
+        <form hx-post="http://localhost:8081/loginredis" class="p-4 border rounded shadow" style="max-width: 350px; width: 100%;">    
             <div class="text-center mb-4">
                 <img src="/static/security-icon.png" class="rounded" style="max-width: 100px;" alt="security-icon">
             </div>
             <div class="mb-3">
-                <input name="username" type="text" class="form-control" placeholder="Usuario" required>
+                <input name="user" type="text" class="form-control" placeholder="Usuario" required>
             </div>
             <div class="mb-3">
                 <input name="password" type="password" class="form-control" placeholder="Contraseña" required>
             </div>
             <button type="submit" class="btn btn-primary w-100">Login</button>
+            <div id="login-error"></div>
         </form>
     </div>
+    <script>
+        document.body.addEventListener('htmx:responseError', function(evt) {
+            if (evt.detail.xhr.status === 401) {
+            document.getElementById('login-error').innerHTML =
+            '<div class="alert alert-danger mt-3">Usuario o contraseña incorrectos</div>';
+            }
+        });
+    </script>
+
 {{ end }}

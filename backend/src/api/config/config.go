@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -17,8 +18,11 @@ var (
 	RedisHostname = getEnv("REDIS_HOSTNAME", "localhost")
 	RedisPort     = getEnv("REDIS_PORT", "6379")
 	RedisPassword = getEnv("REDIS_PASSWORD", "testpassword")
-	RedisUser     = getEnv("REDIS_USER", "testuser")
-	RedisTTL      = getEnvInt("REDIS_TTL", 1800)
+
+	RedisUser = getEnv("REDIS_USER", "testuser")
+	RedisTTL  = getEnvInt("REDIS_TTL", 1800)
+
+	AllowedOrigin = getEnvSlice("ALLOWED_ORIGIN", "http://localhost:8085")
 )
 
 func getEnv(key string, defaultValue string) string {
@@ -36,4 +40,12 @@ func getEnvInt(key string, defaultValue int) int {
 		return num
 	}
 	return defaultValue
+}
+
+func getEnvSlice(key string, defaultValue string) []string {
+	value, ok := os.LookupEnv(key)
+	if ok {
+		return strings.Split(value, ",")
+	}
+	return strings.Split(defaultValue, ",")
 }
