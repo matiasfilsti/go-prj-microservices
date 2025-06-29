@@ -1,7 +1,7 @@
 
 {{ define "main" }}
     <div class="d-flex justify-content-center align-items-center" hx-ext="response-targets" style="min-height: 70vh;">
-        <form hx-post="http://localhost:8081/loginredis" class="p-4 border rounded shadow" style="max-width: 350px; width: 100%;">    
+        <form hx-post="/api/redisauth" hx-credentials="include" class="p-4 border rounded shadow" style="max-width: 350px; width: 100%;">    
             <div class="text-center mb-4">
                 <img src="/static/security-icon.png" class="rounded" style="max-width: 100px;" alt="security-icon">
             </div>
@@ -21,6 +21,16 @@
             document.getElementById('login-error').innerHTML =
             '<div class="alert alert-danger mt-3">Usuario o contraseña incorrectos</div>';
             }
+        });
+    </script>
+    <script>
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+        if (
+            evt.detail.xhr.status === 200 &&
+            evt.detail.requestConfig.path.endsWith("/api/redisauth")
+        ) {
+        window.location.href = "/home";
+        }
         });
     </script>
 

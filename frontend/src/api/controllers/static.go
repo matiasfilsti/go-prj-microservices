@@ -5,6 +5,6 @@ import (
 )
 
 func (s *Server) PublicFiles(w http.ResponseWriter, r *http.Request) {
-	http.StripPrefix("/static/", http.FileServer(http.Dir("./controllers/html-templates/static"))).ServeHTTP(w, r)
+	http.StripPrefix("/static/", http.FileServer(http.Dir("./html-templates/static"))).ServeHTTP(w, r)
 
 }

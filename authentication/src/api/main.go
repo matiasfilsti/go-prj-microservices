@@ -15,5 +15,5 @@ func run() {
 	core := domain.NewCore()
 	srv := controllers.NewServer(gin.New(), core)
 	srv.ConfigureRouter()
-	srv.Router.Run(":8080")
+	srv.Router.Run(":8082")
 }

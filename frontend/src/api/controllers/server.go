@@ -19,21 +19,6 @@ func NewServer(router *chi.Mux) *Server {
 	}
 }
 
-// func (s *Server) LoadTemplates() error {
-// 	pages := []string{"home.html", "login.html"} // agrega aquí más páginas si tienes
-// 	for _, page := range pages {
-// 		tmpl, err := template.ParseFiles(
-// 			filepath.Join(htmlTemplatesFolder, "base-layout.html"),
-// 			filepath.Join(htmlTemplatesFolder, page),
-// 		)
-// 		if err != nil {
-// 			return fmt.Errorf("error parsing %s: %w", page, err)
-// 		}
-// 		pageTemplates[page] = tmpl
-// 	}
-// 	return nil
-// }
-
 func (s *Server) LoadTemplates() error {
 	pages := []string{"home.html", "login.html"}
 	s.Templates = make(map[string]*template.Template)

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,15 +36,19 @@ func (s *Server) LoginWithRedis(c *gin.Context) {
 	if err != nil {
 		switch {
 		case errors.As(err, &rerr):
+			log.Println("error reading response authentincation error:", err)
 			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "reading response authentincation error")
 			return
 		case errors.As(err, &jerr):
+			log.Println("error reading importing response authentincation error:", err)
 			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "reading importing response authentincation error")
 			return
 		case errors.As(err, &herr):
+			log.Println("error reading authentication request:", err)
 			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "reading authentication request")
 			return
 		}
+		log.Println("error trying to authenticate:", err)
 		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "error trying to authenticate")
 		return
 	}
@@ -57,9 +62,11 @@ func (s *Server) LoginWithRedis(c *gin.Context) {
 	if err != nil {
 		switch {
 		case errors.As(err, &serr):
+			log.Println("error saving user into redis:", err)
 			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "saving user into redis error")
 			return
 		}
+		log.Println("error saving user into redis:", err)
 		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "redis failing - internal server error")
 		return
 	}
