@@ -37,6 +37,8 @@ func (s *Server) ConfigureRouter() {
 
 	s.Router.GET("/ping", s.Ping)
 	s.Router.POST("/loginredis", s.LoginWithRedis)
+	s.Router.POST("/authorizedredis", s.AuthorizeRedisLogin)
+	s.Router.POST("/logout", s.LogoutHandlerRedis)
 	s.Router.GET("/loginjwt", s.LoginWithJwt)
 
 }

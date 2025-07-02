@@ -37,8 +37,8 @@ func AuthorizedUserWithRedis(s *client.ClientRedis) gin.HandlerFunc {
 	}
 }
 
-func getSessionAuth(c *gin.Context) (*models.UserV, error) {
-	user := &models.UserV{}
+func getSessionAuth(c *gin.Context) (*models.UserValidation, error) {
+	user := &models.UserValidation{}
 	authUser, err := c.Cookie("auth-user")
 	if err != nil {
 		return user, err

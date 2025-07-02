@@ -19,18 +19,13 @@ func (s *Server) LoginWithRedis(c *gin.Context) {
 	var jerr *ctrserrors.JsonImportError
 	var herr *client.HttpReqCreationError
 	var serr *client.RedisUserSaveError
+
 	fmt.Print("LoginWithRedis called\n")
 	user, password := c.Request.FormValue("user"), c.Request.FormValue("password")
 	if user == "" || password == "" {
 		ctrserrors.RespondHttpError(c, http.StatusBadRequest, errors.New("user or password not provided"), "error trying to read user, password")
 		return
 	}
-	// user, password, ok := c.Request.BasicAuth()
-	// fmt.Println(user, password, ok)
-	// if !ok {
-	// 	ctrserrors.RespondHttpError(c, http.StatusInternalServerError, errors.New("basic Auth error"), "error trying to read user, password")
-	// 	return
-	// }
 
 	validResponse, err := authenticateUser(s, user, password)
 	if err != nil {
@@ -108,4 +103,67 @@ func SaveSessionUser(s *Server, c *gin.Context, user string, session_token strin
 		return err
 	}
 	return nil
+}
+
+func (s *Server) AuthorizeRedisLogin(c *gin.Context) {
+	log.Println("AuthorizeRedisLogin called")
+	user, err := getSessionConfig(c)
+	if err != nil {
+		log.Println("error reading session config:", err)
+		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "error reading data token")
+		return
+	}
+
+	redisUser, err := s.RdsClient.Get(c, user.Name)
+	if err != nil {
+		log.Println("error getting user from redis:", err)
+		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "error: redis user not found")
+		return
+	}
+
+	if redisUser.SessionToken != user.SessionToken || redisUser.CsrfToken != user.CSRFToken {
+		ctrserrors.RespondHttpError(c, http.StatusUnauthorized, errors.New("not authorized"), "error: unauthorized")
+		return
+	}
+	c.JSON(200, "user authorized successfully")
+}
+
+func getSessionConfig(c *gin.Context) (*models.UserValidation, error) {
+	user := &models.UserValidation{}
+	authUser, err := c.Cookie("auth-user")
+	if err != nil {
+		return user, err
+	}
+
+	sessionToken, err := c.Cookie("session_token")
+	if err != nil {
+		return user, err
+	}
+
+	csrfToken := c.GetHeader("X-CSRF-Token")
+	if csrfToken == "" {
+		return user, errors.New("no csrf token")
+	}
+	user.UpdateLoggedUserValues(fmt.Sprintf("user-%s", authUser), sessionToken, csrfToken)
+	return user, nil
+
+}
+
+func (s *Server) LogoutHandlerRedis(c *gin.Context) {
+	log.Println("LogoutHandlerRedis called")
+	authUser, err := c.Cookie("auth-user")
+	if err == nil && authUser != "" {
+		err = s.RdsClient.Del(c, fmt.Sprintf("user-%s", authUser))
+		if err != nil {
+			log.Println("error deleting user from redis:", err)
+			ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "error: redis user not found")
+			return
+		}
+	}
+	log.Println("deleting cookies")
+	c.SetCookie("auth-user", "", -1, "/", "", false, true)
+	c.SetCookie("session_token", "", -1, "/", "", false, true)
+	c.SetCookie("csrf_token", "", -1, "/", "", false, true)
+	log.Println("redirecting to login")
+	c.JSON(200, "logout successfully")
 }

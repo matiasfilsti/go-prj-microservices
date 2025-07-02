@@ -40,6 +40,10 @@ func (rds *ClientRedis) Get(ctx context.Context, key string) (UserSession, error
 	return user, nil
 }
 
+func (rds *ClientRedis) Del(ctx context.Context, key string) error {
+	return rds.client.Del(ctx, key).Err()
+}
+
 func (rds *ClientRedis) Set(ctx context.Context, key string, sessionToken string, csrfToken string) error {
 	command := rds.client.TxPipeline()
 	fmt.Println("Session Token:", sessionToken)

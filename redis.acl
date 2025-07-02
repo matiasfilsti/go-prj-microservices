@@ -1,2 +1,2 @@
-user testuser on >testpassword ~user-* +GET +HSET +MULTI +EXPIRE +EXEC +HGETALL
+user testuser on >testpassword ~user-* +GET +HSET +MULTI +EXPIRE +EXEC +HGETALL +DEL
 user admin on >adminpassword ~* +@all

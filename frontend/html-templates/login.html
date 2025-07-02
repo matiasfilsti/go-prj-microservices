@@ -1,7 +1,7 @@
 
 {{ define "main" }}
     <div class="d-flex justify-content-center align-items-center" hx-ext="response-targets" style="min-height: 70vh;">
-        <form hx-post="/api/redisauth" hx-credentials="include" class="p-4 border rounded shadow" style="max-width: 350px; width: 100%;">    
+        <form hx-post="/api/loginredis" hx-credentials="include" class="p-4 border rounded shadow" style="max-width: 350px; width: 100%;">    
             <div class="text-center mb-4">
                 <img src="/static/security-icon.png" class="rounded" style="max-width: 100px;" alt="security-icon">
             </div>
@@ -17,9 +17,15 @@
     </div>
     <script>
         document.body.addEventListener('htmx:responseError', function(evt) {
+            var errorDiv = document.getElementById('login-error');
             if (evt.detail.xhr.status === 401) {
-            document.getElementById('login-error').innerHTML =
-            '<div class="alert alert-danger mt-3">Usuario o contraseña incorrectos</div>';
+                errorDiv.innerHTML = '<div class="alert alert-danger mt-3">Usuario o contraseña incorrectos</div>';
+            } else if (evt.detail.xhr.status === 400) {
+                errorDiv.innerHTML = '<div class="alert alert-warning mt-3">Solicitud inválida. Por favor revisa los datos ingresados.</div>';
+            } else if (evt.detail.xhr.status >= 500) {
+                errorDiv.innerHTML = '<div class="alert alert-danger mt-3">Error del servidor. Intenta nuevamente más tarde.</div>';
+            } else {
+                errorDiv.innerHTML = '<div class="alert alert-secondary mt-3">Ocurrió un error inesperado.</div>';
             }
         });
     </script>
@@ -27,7 +33,7 @@
         document.body.addEventListener('htmx:afterRequest', function(evt) {
         if (
             evt.detail.xhr.status === 200 &&
-            evt.detail.requestConfig.path.endsWith("/api/redisauth")
+            evt.detail.requestConfig.path.endsWith("/api/loginredis")
         ) {
         window.location.href = "/home";
         }

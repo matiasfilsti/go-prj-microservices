@@ -31,7 +31,7 @@ func (s *Server) Home(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Template not found", http.StatusInternalServerError)
 		return
 	}
-	err := tmpl.ExecuteTemplate(w, "base", nil)
+	err := tmpl.ExecuteTemplate(w, "base", data)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}

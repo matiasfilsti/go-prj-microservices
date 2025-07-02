@@ -3,8 +3,10 @@ package config
 import "os"
 
 var (
-	BackEndUrl  = getEnv("BACKEND_URL", "localhost")
-	BackEndPort = getEnv("BACKEND_PORT", "8081")
+	BackEndUrl         = getEnv("BACKEND_URL", "localhost")
+	BackEndPort        = getEnv("BACKEND_PORT", "8081")
+	AuthenticationUrl  = getEnv("AUTHENTICATION_URL", "localhost")
+	AuthenticationPort = getEnv("AUTHENTICATION_PORT", "8082")
 )
 
 func getEnv(key string, defaultValue string) string {

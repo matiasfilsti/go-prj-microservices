@@ -18,16 +18,13 @@ type ValidUserJwt struct {
 	JwtToken    string `json:"jwttoken"`
 }
 
-type UserV struct {
+type UserValidation struct {
 	Name         string `json:"name"`
-	Password     string `json:"password"`
-	Valid        bool   `json:"valid"`
-	Description  string `json:"description"`
 	SessionToken string `json:"sessiontoken"`
 	CSRFToken    string `json:"csrftoken"`
 }
 
-func (u *UserV) UpdateLoggedUserValues(User string, sessionToken string, csrfToken string) {
+func (u *UserValidation) UpdateLoggedUserValues(User string, sessionToken string, csrfToken string) {
 	u.Name = User
 	u.SessionToken = sessionToken
 	u.CSRFToken = csrfToken
