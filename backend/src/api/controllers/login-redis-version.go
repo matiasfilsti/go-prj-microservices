@@ -68,6 +68,14 @@ func (s *Server) LoginWithRedis(c *gin.Context) {
 	setCookies(c, validResponse.SessionToken, validResponse.CSRFToken, user)
 
 	c.JSON(200, "user successfully logged")
+	// c.JSON(200, gin.H{
+	// 	"message": "user successfully logged",
+	// 	"tokens": gin.H{
+	// 		"session_token": validResponse.SessionToken,
+	// 		"csrf_token":    validResponse.CSRFToken,
+	// 		"auth_user":     user,
+	// 	},
+	// })
 }
 
 func setCookies(c *gin.Context, session_token string, csrf_token string, user string) {

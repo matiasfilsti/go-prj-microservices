@@ -10,20 +10,20 @@ import (
 
 func ConnectRMQ() *amqp.Channel {
 	conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%s", config.RabbitMQUser, config.RabbitMQPassword, config.RabbitMQHostname, config.RabbitMQPort))
-	failOnError(err, "Failed to connect to RabbitMQ")
+	if err != nil {
+		log.Printf("Warning: Failed to connect to RabbitMQ: %v", err)
+		return nil
+	}
 
 	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
+	if err != nil {
+		log.Printf("Warning: Failed to open RabbitMQ channel: %v", err)
+		conn.Close()
+		return nil
+	}
 
 	DeclareQueue(ch)
 	return ch
-}
-
-func failOnError(err error, msg string) {
-	if err != nil {
-		log.Panicf("%s: %s", msg, err)
-		// log.Printf("%s: %s", msg, err)
-	}
 }
 
 func DeclareQueue(ch *amqp.Channel) {
@@ -35,5 +35,8 @@ func DeclareQueue(ch *amqp.Channel) {
 		false,   // no-wait
 		nil,     // arguments
 	)
-	failOnError(err, "Failed to declare a queue")
+	if err != nil {
+		log.Printf("Warning: Failed to declare queue: %v", err)
+		return
+	}
 }

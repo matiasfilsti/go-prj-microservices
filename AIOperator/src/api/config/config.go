@@ -7,21 +7,13 @@ import (
 )
 
 var (
-	AuthHostname = getEnv("AUTH_HOSTNAME", "localhost")
-	AuthPort     = getEnv("AUTH_PORT", "8082")
-
-	RabbitMQHostname = getEnv("MQ_HOSTNAME", "localhost")
-	RabbitMQUser     = getEnv("MQ_USER", "backUser")
-	RabbitMQPassword = getEnv("MQ_PASSWORD", "backPassword")
-	RabbitMQPort     = getEnv("MQ_PORT", "5672")
-
-	RedisHostname = getEnv("REDIS_HOSTNAME", "localhost")
-	RedisPort     = getEnv("REDIS_PORT", "6379")
-	RedisPassword = getEnv("REDIS_PASSWORD", "testpassword")
-	RedisUser     = getEnv("REDIS_USER", "testuser")
-	RedisTTL      = getEnvInt("REDIS_TTL", 1800)
-
 	AllowedOrigin = getEnvSlice("ALLOWED_ORIGIN", "http://localhost:8085,http://localhost:8080,http://frontend-service:8085")
+	RedisHost     = getEnv("REDIS_HOST", "localhost")
+	RedisPort     = getEnvInt("REDIS_PORT", 6379)
+	RedisUser     = getEnv("REDIS_USER", "admin")
+	RedisPassword = getEnv("REDIS_PASSWORD", "AdminPass123")
+	RedisDB       = getEnv("REDIS_DB", "airedis_vectorstore")
+	LlmUrl        = getEnv("LLM_URL", "http://127.0.0.1:11435")
 )
 
 func getEnv(key string, defaultValue string) string {

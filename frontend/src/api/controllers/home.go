@@ -7,9 +7,9 @@ import (
 
 var htmlTemplatesFolder = "html-templates/"
 
-var data map[string]interface{} = map[string]interface{}{
-	"BackendUrl":  config.BackEndUrl,
-	"BackendPort": config.BackEndPort,
+var data map[string]any = map[string]any{
+	"BACKEND_URL":  config.BackEndUrl,
+	"BACKEND_PORT": config.BackEndPort,
 }
 
 func (s *Server) Login(w http.ResponseWriter, r *http.Request) {

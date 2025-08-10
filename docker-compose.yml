@@ -28,8 +28,13 @@ services:
         REDIS_HOSTNAME: 'cache-service'
       ports:
         - 8081:8081
+  ai-operator:
+      image: aiop:v1.0
+      restart: always
+      ports:
+        - 8086:8086
   frontend-service:
-      image: front:v1.0
+      image: front:v1.3
       restart: always
       environment:
         BACKEND_URL: 'backend-service'
@@ -45,16 +50,16 @@ services:
       command: ["/bin/sh", "-c", "chmod 644 /data/redis.acl && redis-server --aclfile /data/redis.acl"]
       ports:
         - 6379:6379
-  rabbitmq-service:
-      image: rabbitmq:4.0.7-management
-      restart: always
-      environment:
-        DB_HOSTNAME: 'auth-api-db-test'
-        RABBITMQ_DEFAULT_USER: 'backUser'
-        RABBITMQ_DEFAULT_PASS: 'backPassword'
-      ports:
-        - 8090:15672
-        - 5672:5672
+  # rabbitmq-service:
+  #     image: rabbitmq:4.0.7-management
+  #     restart: always
+  #     environment:
+  #       DB_HOSTNAME: 'auth-api-db-test'
+  #       RABBITMQ_DEFAULT_USER: 'backUser'
+  #       RABBITMQ_DEFAULT_PASS: 'backPassword'
+  #     ports:
+  #       - 8090:15672
+  #       - 5672:5672
   nginx-proxy:
       image: nginx:1.29
       ports:
