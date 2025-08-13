@@ -37,5 +37,5 @@ func NewAiOperatorRepository(llm llms.Model) *AiOperatorRepository {
 }
 
 func (r *AiOperatorRepository) GenerateResponse(ctx context.Context, question string) (string, error) {
-	return "", nil
+	return "HOLA", nil
 }

@@ -1,24 +1,26 @@
 package domain
 
 import (
+	"aioperator/src/api/domain/services"
 	"aioperator/src/api/repositories"
 
 	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/vectorstores/redisvector"
 )
 
 type Core struct {
 	llm   llms.Model
-	cache *redisvector.Store
+	cache services.RetrievalCacheService
 }
 
 func NewCore() *Core {
 
 	llm, e := repositories.NewAiOperator()
-	store := repositories.NewRetrievalCache(e)
+	storeCache := repositories.ConnectRetrievalCache(e)
+	repoStoreCache := repositories.NewRetrievalCache(storeCache)
+	storeCacheService := services.NewRetrievalCacheService(&repoStoreCache)
 
 	return &Core{
 		llm:   llm,
-		cache: store,
+		cache: storeCacheService,
 	}
 }
