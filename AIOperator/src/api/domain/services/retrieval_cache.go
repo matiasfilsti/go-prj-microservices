@@ -3,6 +3,8 @@ package services
 import (
 	"aioperator/src/api/domain/contracts"
 	"context"
+
+	"github.com/tmc/langchaingo/schema"
 )
 
 type RetrievalCacheService struct {
@@ -15,6 +17,6 @@ func NewRetrievalCacheService(repo contracts.RetrievalCache) RetrievalCacheServi
 	}
 }
 
-func (s *RetrievalCacheService) Search(ctx context.Context, query string) ([]string, error) {
+func (s *RetrievalCacheService) Search(ctx context.Context, query string) ([]schema.Document, error) {
 	return s.repo.Search(ctx, query)
 }

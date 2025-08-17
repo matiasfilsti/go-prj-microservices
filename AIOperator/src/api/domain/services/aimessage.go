@@ -3,6 +3,8 @@ package services
 import (
 	"aioperator/src/api/domain/contracts"
 	"context"
+
+	"github.com/tmc/langchaingo/schema"
 )
 
 type AiMessageService struct {
@@ -15,6 +17,6 @@ func NewAiMessageService(repo contracts.AiOperatorRepository) AiMessageService {
 	}
 }
 
-func (s *AiMessageService) GenerateAIResponse(ctx context.Context, question string) (string, error) {
-	return s.repo.GenerateResponse(ctx, question)
+func (s *AiMessageService) GenerateAIResponse(ctx context.Context, docs []schema.Document) (string, error) {
+	return s.repo.GenerateResponse(ctx, docs)
 }

@@ -3,12 +3,10 @@ package domain
 import (
 	"aioperator/src/api/domain/services"
 	"aioperator/src/api/repositories"
-
-	"github.com/tmc/langchaingo/llms"
 )
 
 type Core struct {
-	llm   llms.Model
+	llm   services.AiMessageService
 	cache services.RetrievalCacheService
 }
 
@@ -18,9 +16,10 @@ func NewCore() *Core {
 	storeCache := repositories.ConnectRetrievalCache(e)
 	repoStoreCache := repositories.NewRetrievalCache(storeCache)
 	storeCacheService := services.NewRetrievalCacheService(&repoStoreCache)
+	aiMessageService := services.NewAiMessageService(repositories.NewAiOperatorRepository(llm, storeCache))
 
 	return &Core{
-		llm:   llm,
+		llm:   aiMessageService,
 		cache: storeCacheService,
 	}
 }
