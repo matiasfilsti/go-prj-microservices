@@ -3,7 +3,9 @@ package repositories
 import (
 	"aioperator/src/api/config"
 	"context"
+	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/schema"
@@ -13,7 +15,7 @@ import (
 
 func ConnectRetrievalCache(e *embeddings.EmbedderImpl) *redisvector.Store {
 	store, err := redisvector.New(context.Background(),
-		redisvector.WithConnectionURL(config.RedisHost),
+		redisvector.WithConnectionURL("redis://"+config.RedisUser+":"+config.RedisPassword+"@"+config.RedisHost+":"+strconv.Itoa(config.RedisPort)),
 		redisvector.WithIndexName(config.RedisDB, true),
 		redisvector.WithEmbedder(e),
 	)
@@ -45,6 +47,7 @@ func (r *RetrievalCache) Search(ctx context.Context, query string) ([]schema.Doc
 }
 
 func Initialization(ctx context.Context, store *redisvector.Store) error {
+	fmt.Println("Initializing retrieval cache")
 	data := []schema.Document{
 		{PageContent: "Tokyo", Metadata: map[string]any{"population": 13.96, "area": 2194, "country": "Japan", "founded": 1457, "timezone": "JST (UTC+9)", "gdp": 2.0, "elevation": 40, "language": "Japanese", "currency": "Yen (JPY)", "landmarks": "Tokyo Tower, Shibuya Crossing, Senso-ji Temple", "best_travel_period": "Late March to April (cherry blossoms) and October to November (mild weather, fall foliage)"}},
 		{PageContent: "Kyoto", Metadata: map[string]any{"population": 1.46, "area": 828, "country": "Japan", "founded": 794, "timezone": "JST (UTC+9)", "gdp": 0.1, "elevation": 41, "language": "Japanese", "currency": "Yen (JPY)", "landmarks": "Kinkaku-ji, Fushimi Inari Shrine, Gion District", "best_travel_period": "March to May (spring) and October to November (fall colors)"}},
@@ -67,5 +70,10 @@ func Initialization(ctx context.Context, store *redisvector.Store) error {
 		{PageContent: "Moscow", Metadata: map[string]any{"population": 12.65, "area": 2511, "country": "Russia", "founded": 1147, "timezone": "MSK (UTC+3)", "gdp": 0.25, "elevation": 156, "language": "Russian", "currency": "Russian Ruble (RUB)", "landmarks": "Red Square, Kremlin, St. Basil's Cathedral", "best_travel_period": "May to September (mild weather, white nights in June)"}},
 	}
 	_, err := store.AddDocuments(ctx, data)
-	return err
+	if err != nil {
+		fmt.Println("Error adding documents to cache", err)
+		return err
+	}
+	fmt.Println("Documents added to cache")
+	return nil
 }

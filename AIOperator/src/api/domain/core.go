@@ -6,8 +6,8 @@ import (
 )
 
 type Core struct {
-	llm   services.AiMessageService
-	cache services.RetrievalCacheService
+	Llm   services.AiMessageService
+	Cache services.RetrievalCacheService
 }
 
 func NewCore() *Core {
@@ -19,7 +19,7 @@ func NewCore() *Core {
 	aiMessageService := services.NewAiMessageService(repositories.NewAiOperatorRepository(llm, storeCache))
 
 	return &Core{
-		llm:   aiMessageService,
-		cache: storeCacheService,
+		Llm:   aiMessageService,
+		Cache: storeCacheService,
 	}
 }

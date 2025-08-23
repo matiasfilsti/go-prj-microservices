@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	AllowedOrigin = getEnvSlice("ALLOWED_ORIGIN", "http://localhost:8085,http://localhost:8080,http://frontend-service:8085")
+	AllowedOrigin = getEnvSlice("ALLOWED_ORIGIN", "http://localhost:8086,http://localhost:8080,http://frontend-service:8085")
 	RedisHost     = getEnv("REDIS_HOST", "localhost")
-	RedisPort     = getEnvInt("REDIS_PORT", 6379)
+	RedisPort     = getEnvInt("REDIS_PORT", 6380)
 	RedisUser     = getEnv("REDIS_USER", "admin")
 	RedisPassword = getEnv("REDIS_PASSWORD", "AdminPass123")
 	RedisDB       = getEnv("REDIS_DB", "airedis_vectorstore")

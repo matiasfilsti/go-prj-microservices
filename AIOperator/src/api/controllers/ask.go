@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"aioperator/src/api/controllers/ctrserrors"
 	"aioperator/src/api/domain/models"
 	"fmt"
 	"net/http"
@@ -16,5 +17,18 @@ func (s *Server) Ask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Pregunta no válida"})
 		return
 	}
-	c.String(http.StatusOK, "Recibí tu pregunta: "+req.Question)
+
+	docs, err := s.Core.Cache.Search(c.Request.Context(), req.Question)
+	if err != nil {
+		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error al buscar en el cache")
+		return
+	}
+	fmt.Println("cache response", docs)
+	llmResponse, err := s.Core.Llm.GenerateResponse(c.Request.Context(), docs)
+	if err != nil {
+		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error al generar respuesta")
+		return
+	}
+	fmt.Println("llm response", llmResponse)
+	c.String(http.StatusOK, llmResponse)
 }
