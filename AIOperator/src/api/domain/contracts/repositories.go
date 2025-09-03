@@ -7,7 +7,7 @@ import (
 )
 
 type AiOperatorRepository interface {
-	GenerateResponse(ctx context.Context, docs []schema.Document) (string, error)
+	GenerateResponse(ctx context.Context, docs []schema.Document, question string) (string, error)
 }
 
 type RetrievalCache interface {

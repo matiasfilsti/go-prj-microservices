@@ -24,7 +24,7 @@ func (s *Server) Ask(c *gin.Context) {
 		return
 	}
 	fmt.Println("cache response", docs)
-	llmResponse, err := s.Core.Llm.GenerateResponse(c.Request.Context(), docs)
+	llmResponse, err := s.Core.Llm.GenerateResponse(c.Request.Context(), docs, req.Question)
 	if err != nil {
 		ctrserrors.RespondHttpError(c, http.StatusInternalServerError, err, "Error al generar respuesta")
 		return

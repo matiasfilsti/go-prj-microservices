@@ -17,6 +17,6 @@ func NewAiMessageService(repo contracts.AiOperatorRepository) AiMessageService {
 	}
 }
 
-func (s *AiMessageService) GenerateResponse(ctx context.Context, docs []schema.Document) (string, error) {
-	return s.repo.GenerateResponse(ctx, docs)
+func (s *AiMessageService) GenerateResponse(ctx context.Context, docs []schema.Document, question string) (string, error) {
+	return s.repo.GenerateResponse(ctx, docs, question)
 }
