@@ -3,6 +3,7 @@ package repositories
 import (
 	"aioperator/src/api/config"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -152,7 +153,8 @@ func (r *AiOperatorRepository) GenerateResponse(ctx context.Context, docs []sche
 	fmt.Printf("Document metadata: %+v\n", docs[0].Metadata)
 	fmt.Printf("Question: %s\n", question)
 
-	summaryTemplate := `Eres un asistente que responde preguntas sobre ciudades.
+	summaryTemplate := `
+	Eres un asistente que se llama MMlA04 y responde preguntas sobre ciudades en texto plano.
 	Basándote en la siguiente información:
 	Nombre: {{.name}}
 	Población: {{.population}} millones
@@ -168,13 +170,6 @@ func (r *AiOperatorRepository) GenerateResponse(ctx context.Context, docs []sche
 	Mejor período para visitar: {{.best_travel_period}}
     
 	responde la siguiente pregunta: ` + question + `
-
-	Instrucciones:
-	1. Responde ÚNICAMENTE con este formato exacto:
-	"Hola, me llamo MMlA04, tu asistente virtual, aquí está tu respuesta: [respuesta]"
-	2. No repitas la pregunta
-	3. Responde en español
-	4. Responde en texto plano
 	`
 
 	summaryChain := chains.NewLLMChain(r.llm, prompts.NewPromptTemplate(summaryTemplate,
@@ -223,9 +218,17 @@ func (r *AiOperatorRepository) GenerateResponse(ctx context.Context, docs []sche
 	// Extract and return the final answer
 
 	// return response.Answer, nil
+
 	resp, ok := result["respuesta"].(string)
 	if !ok {
 		return "", fmt.Errorf("invalid response format")
+	}
+
+	var jsonResp map[string]string
+	if err := json.Unmarshal([]byte(resp), &jsonResp); err == nil {
+		for k, v := range jsonResp {
+			return fmt.Sprintf("Hola, me llamo MMlA04, tu asistente virtual, aquí está tu respuesta: %s, %s", k, v), nil
+		}
 	}
 	return resp, nil
 }

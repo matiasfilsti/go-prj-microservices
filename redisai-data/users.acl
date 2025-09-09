@@ -1,0 +1,4 @@
+user default off
+
+user admin   on >AdminPass123   ~* &* +@all
+user readonly on >ReadOnlyPass456 ~* &* +@read

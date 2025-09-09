@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"aioperator/src/api/config"
+	"aioperator/src/api/domain/errors"
 	"context"
 	"fmt"
 	"log"
@@ -42,6 +43,9 @@ func (r *RetrievalCache) Search(ctx context.Context, query string) ([]schema.Doc
 	)
 	if err != nil {
 		return nil, err
+	}
+	if len(docs) == 0 {
+		return nil, errors.NewRedisCacheError("no information about countries found")
 	}
 	return docs, nil
 }

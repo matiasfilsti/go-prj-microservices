@@ -13,3 +13,17 @@ func NewRabbitmqMsgError(msg string) *RabbitmqMsgError {
 		Msg: msg,
 	}
 }
+
+type RedisCacheError struct {
+	Msg string
+}
+
+func (e *RedisCacheError) Error() string {
+	return e.Msg
+}
+
+func NewRedisCacheError(msg string) *RedisCacheError {
+	return &RedisCacheError{
+		Msg: msg,
+	}
+}

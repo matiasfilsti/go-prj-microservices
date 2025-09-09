@@ -29,10 +29,27 @@ services:
       ports:
         - 8081:8081
   ai-operator:
-      image: aiop:v1.0
+      image: aiop:v1.1
       restart: always
+      environment:
+        REDIS_HOST: 'aicache-service'
+        LLM_URL: 'http://ollama-srv:11434'
       ports:
         - 8086:8086
+  aicache-service:
+    image: redis/redis-stack:latest
+    restart: always
+    volumes:
+      - ./redisai-data/redis.conf:/redis-stack.conf
+      - ./redisai-data/users.acl:/users.acl:ro
+    ports:
+      - "6380:6380"
+    # volumes:
+      # - ./redisai.acl:/data/redis.acl
+    # command: ["/bin/sh", "-c", "chmod 644 /data/redis.acl && redis-server --aclfile /data/redis.acl --port 6380"]
+    # ports:
+    #   - 6380:6380
+    # redis-cli -h localhost -p 6380 -a AdminPass123   --> AUTH admin AdminPass123
   frontend-service:
       image: front:v1.3
       restart: always
@@ -50,6 +67,12 @@ services:
       command: ["/bin/sh", "-c", "chmod 644 /data/redis.acl && redis-server --aclfile /data/redis.acl"]
       ports:
         - 6379:6379
+  ollama-srv: 
+    image: ollama/ollama:latest
+    pull_policy: always
+    ports: ["11435:11434"] # will be accessible in http://localhost:11435
+    volumes:
+      - ~/.ollama/models:/root/.ollama/models:ro 
   # rabbitmq-service:
   #     image: rabbitmq:4.0.7-management
   #     restart: always
