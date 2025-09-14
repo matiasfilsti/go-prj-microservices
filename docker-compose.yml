@@ -62,7 +62,7 @@ services:
       image: redis:7.4.2
       restart: always
       volumes:
-        - ./redis.acl:/data/redis.acl
+        - ./redisAuth-data/redis.acl:/data/redis.acl
       # command: ["redis-server", "--loadmodule", "/data/redis.acl"]
       command: ["/bin/sh", "-c", "chmod 644 /data/redis.acl && redis-server --aclfile /data/redis.acl"]
       ports:
@@ -88,7 +88,7 @@ services:
       ports:
         - "8080:8080"
       volumes:
-        - ./nginx.conf:/etc/nginx/nginx.conf:ro
+        - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 
 volumes:
   db_data:

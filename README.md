@@ -1,189 +1,110 @@
-# go-prj-microservices
-microservices project
+# Microservicios en Go
 
-# Log into DB
-psql -d auth-api -U authapi
+Este proyecto es una arquitectura de microservicios desarrollada en Go que implementa un sistema completo con autenticación, backend, frontend y capacidades de IA.
 
+## Tecnologías Principales
 
+- **Lenguaje**: Go (Golang)
+- **Bases de Datos**:
+  - PostgreSQL para datos de autenticación
+  - Redis para caché
+- **Frontend**: Aplicación web interactiva
+- **IA/ML**: Integración con Ollama para modelos de lenguaje
+- **Mensajería**: RabbitMQ (actualmente comentado en la configuración)
+- **Proxy Inverso**: Nginx
+- **Contenedorización**: Docker y Docker Compose
 
-TTL <nombre_de_la_clave>
-HGETALL <nombre_del_hash>
-GET <nombre_de_la_clave>
-KEYS *
+## Arquitectura
 
-ver usuarios 
-acl list
-ACL GETUSER <nombre_del_usuario>
+El sistema está compuesto por los siguientes servicios:
 
+1. **Authentication Service**: Manejo de autenticación y autorización
+2. **Backend Service**: Lógica principal de negocio
+3. **Frontend Service**: Interfaz de usuario web
+4. **AI Operator**: Servicio de inteligencia artificial
+5. **Redis Cache**: Almacenamiento en caché
+6. **PostgreSQL**: Base de datos relacional
+7. **Nginx**: Proxy inverso y balanceador de carga
 
+## Requisitos Previos
 
+- Docker y Docker Compose instalados
+- Git para clonar el repositorio
+- Al menos 4GB de RAM disponibles para los contenedores
 
+## Cómo Levantar el Proyecto Localmente
 
-Rabbit url
-http://localhost:8082/#/queues
+1. **Clonar el repositorio**:
+   ```bash
+   git clone <url-del-repositorio>
+   cd go-prj-microservices
+   ```
 
-package main
+2. **Iniciar los servicios con Docker Compose**:
+   ```bash
+   docker-compose up -d
+   ```
 
-import (
-    "net/http"
-    "github.com/gin-gonic/gin"
-    "log"
-    "io/ioutil"
-)
+3. **Verificar que los contenedores estén en ejecución**:
+   ```bash
+   docker-compose ps
+   ```
 
-func main() {
-    r := gin.Default()
+4. **Acceder a los servicios**:
+   - nginx: http://localhost:8080  ( Acceso Principal )
+   - Frontend: http://localhost:8085
+   - Backend API: http://localhost:8081
+   - Autenticación: http://localhost:8082
+   - AI Operator: http://localhost:8086
+   - Redis Admin: http://localhost:8080
 
-    r.Use(AuthMiddleware())
+## Variables de Entorno
 
-    r.GET("/someEndpoint", func(c *gin.Context) {
-        c.JSON(http.StatusOK, gin.H{"message": "Authorized!"})
-    })
+Los servicios utilizan las siguientes variables de entorno (configuradas en el archivo `docker-compose.yml`):
 
-    r.Run(":8080")
-}
+- `DB_HOSTNAME`: Host de la base de datos
+- `MQ_HOSTNAME`: Host de RabbitMQ
+- `AUTH_HOSTNAME`: Host del servicio de autenticación
+- `REDIS_HOSTNAME`: Host del servicio Redis
+- `LLM_URL`: URL del servicio de modelos de lenguaje
 
+## Estructura del Proyecto
 
+```
+go-prj-microservices/
+├── AIOperator/          # Servicio de operaciones de IA
+├── authentication/      # Servicio de autenticación
+├── backend/             # Servicio principal del backend
+├── consumer/            # Consumidor de mensajes
+├── frontend/            # Interfaz de usuario web
+├── nginx/               # Configuración de Nginx
+├── redisai-data/        # Datos de Redis para IA
+└── redisAuth-data/      # Datos de autenticación en Redis
+```
 
-func AuthMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        // Crear cliente HTTP
-        client := &http.Client{}
-        
-        // Crear petición HTTP
-        req, err := http.NewRequest("GET", "http://localhost:8081/checkAuth", nil)
-        if err != nil {
-            log.Fatal(err)
-        }
+## Despliegue
 
-        // Establecer encabezado de autenticación básica
-        req.SetBasicAuth("user", "password")
+El proyecto está configurado para ser desplegado directamente con Docker Compose. Para entornos de producción, se recomienda:
 
-        // Enviar petición
-        resp, err := client.Do(req)
-        if err != nil {
-            log.Fatal(err)
-        }
-        defer resp.Body.Close()
+1. Configurar volúmenes persistentes para las bases de datos
+2. Implementar HTTPS con certificados SSL
+3. Configurar monitoreo y logs centralizados
+4. Establecer políticas de seguridad adecuadas
 
-        // Leer respuesta
-        body, err := ioutil.ReadAll(resp.Body)
-        if err != nil {
-            log.Fatal(err)
-        }
+## Notas Adicionales
 
-        if resp.StatusCode != http.StatusOK {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": string(body)})
-            c.Abort()
-            return
-        }
+- El servicio de RabbitMQ está actualmente comentado en el `docker-compose.yml`
+- Se recomienda configurar las credenciales de acceso en producción
+- Verificar los puertos expuestos para evitar conflictos
 
-        c.Next()
-    }
-}
+## Contribución
 
+1. Haz un fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Haz commit de tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Haz push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
+## Licencia
 
------
-package main
-
-import (
-    "github.com/gin-gonic/gin"
-    "net/http"
-)
-
-func main() {
-    r := gin.Default()
-    
-    r.GET("/checkAuth", func(c *gin.Context) {
-        // Obtener credenciales del encabezado de autenticación
-        user, password, hasAuth := c.Request.BasicAuth()
-        if !hasAuth || user != "user" || password != "password" {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-            return
-        }
-        c.JSON(http.StatusOK, gin.H{"message": "User authorized"})
-    })
-
-    r.Run(":8081")
-}
-
-----------
-package main
-
-import (
-    "github.com/gin-gonic/gin"
-    "log"
-    "net/http"
-    "io/ioutil"
-)
-
-func main() {
-    r := gin.Default()
-
-    r.Use(AuthMiddleware())
-
-    r.GET("/someEndpoint", func(c *gin.Context) {
-        c.JSON(http.StatusOK, gin.H{"message": "Authorized!"})
-    })
-
-    r.Run(":8080")
-}
-
-func AuthMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        user, password, hasAuth := c.Request.BasicAuth()
-        if !hasAuth {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-            c.Abort()
-            return
-        }
-        
-        log.Printf("Received credentials - User: %s, Password: %s", user, password)
-
-        // Crear cliente HTTP
-        client := &http.Client{}
-        
-        // Crear petición HTTP
-        req, err := http.NewRequest("GET", "http://localhost:8081/checkAuth", nil)
-        if err != nil {
-            log.Fatal(err)
-        }
-
-        // Establecer encabezado de autenticación básica
-        req.SetBasicAuth(user, password)
-
-        // Enviar petición
-        resp, err := client.Do(req)
-        if err != nil {
-            log.Fatal(err)
-        }
-        defer resp.Body.Close()
-
-        // Leer respuesta
-        body, err := ioutil.ReadAll(resp.Body)
-        if err != nil {
-            log.Fatal(err)
-        }
-
-        if resp.StatusCode != http.StatusOK {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": string(body)})
-            c.Abort()
-            return
-        }
-
-        c.Next()
-    }
-}
-
-
-
---------------------
-
-user, password, hasAuth := c.Request.BasicAuth()
-if !hasAuth {
-    c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-    c.Abort()
-    return
-}
-log.Printf("Received credentials - User: %s, Password: %s", user, password)
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
