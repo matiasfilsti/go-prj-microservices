@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-service
+  namespace: go-microservices
+  labels:
+    app: frontend
+    component: service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+      component: service
+  template:
+    metadata:
+      labels:
+        app: frontend
+        component: service
+    spec:
+      containers:
+      - name: frontend-service
+        image: filstimatias/front:v1.3
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8085
+          name: http
+        env:
+        - name: BACKEND_URL
+          value: "backend-service"
+        - name: BACKEND_PORT
+          value: "8081"
+        - name: AUTHENTICATION_URL
+          value: "authentication-service"
+        - name: AUTHENTICATION_PORT
+          value: "8082"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: go-microservices
+  labels:
+    app: frontend
+    component: service
+spec:
+  ports:
+  - port: 8085
+    targetPort: 8085
+    name: http
+  selector:
+    app: frontend
+    component: service

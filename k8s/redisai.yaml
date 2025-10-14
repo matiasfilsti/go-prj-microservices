@@ -1,0 +1,106 @@
+# redis-ai-stack.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-ai-config
+  namespace: go-microservices
+data:
+  redis-stack.conf: |
+    port 6380
+    bind 0.0.0.0
+    protected-mode no
+    appendonly yes
+    aclfile /users.acl
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-acl-config
+  namespace: go-microservices
+data:
+  users.acl: |
+    user default off
+    user admin on >AdminPass123 ~* &* +@all
+    user readonly on >ReadOnlyPass456 ~* &* +@read
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-ai
+  namespace: go-microservices
+  labels:
+    app: redis-ai
+    component: vector-database
+spec:
+  serviceName: redis-ai
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-ai
+  template:
+    metadata:
+      labels:
+        app: redis-ai
+        component: vector-database
+    spec:
+      containers:
+      - name: redis-ai
+        image: redis/redis-stack:latest
+        command: ["redis-stack-server", "/redis-stack.conf"]
+        ports:
+        - containerPort: 6380
+          name: redis
+        volumeMounts:
+        - name: redis-config
+          mountPath: /redis-stack.conf
+          subPath: redis-stack.conf
+        - name: acl-config
+          mountPath: /users.acl
+          subPath: users.acl
+        - name: redis-data
+          mountPath: /data
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2
+            memory: 4Gi
+      volumes:
+      - name: redis-config
+        configMap:
+          name: redis-ai-config
+          items:
+          - key: redis-stack.conf
+            path: redis-stack.conf
+      - name: acl-config
+        configMap:
+          name: redis-acl-config
+          items:
+          - key: users.acl
+            path: users.acl
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-ai
+  namespace: go-microservices
+  labels:
+    app: redis-ai
+    component: vector-database
+spec:
+  ports:
+  - port: 6380
+    targetPort: 6380
+    name: redis
+  selector:
+    app: redis-ai
+  type: ClusterIP

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentication-service
+  namespace: go-microservices
+  labels:
+    app: authentication
+    component: service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentication
+      component: service
+  template:
+    metadata:
+      labels:
+        app: authentication
+        component: service
+    spec:
+      containers:
+      - name: authentication-service
+        image: filstimatias/auth:v2.3
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8082
+          name: http
+        env:
+        - name: DB_HOSTNAME
+          value: "postgres"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USERNAME
+          value: "authapi"
+        - name: DB_PASSWORD
+          value: "authapipass"
+        - name: DB_DATABASE
+          value: "auth-api"
+        - name: JWT_SECRET
+          value: "secretkey"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-service
+  namespace: go-microservices
+  labels:
+    app: authentication
+    component: service
+spec:
+  ports:
+  - port: 8082
+    targetPort: 8082
+    name: http
+  selector:
+    app: authentication
+    component: service

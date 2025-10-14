@@ -1,0 +1,51 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: microservices-gateway
+  namespace: go-microservices
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: microservices-vs
+  namespace: go-microservices
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - microservices-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /api/auth
+    route:
+    - destination:
+        host: authentication-service.go-microservices.svc.cluster.local
+        port:
+          number: 8082
+  - match:
+    - uri:
+        prefix: /api
+    route:
+    - destination:
+        host: backend-service.go-microservices.svc.cluster.local
+        port:
+          number: 8081
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: frontend-service.go-microservices.svc.cluster.local
+        port:
+          number: 8085

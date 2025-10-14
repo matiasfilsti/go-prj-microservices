@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-service
+  namespace: go-microservices
+  labels:
+    app: backend
+    component: service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+      component: service
+  template:
+    metadata:
+      labels:
+        app: backend
+        component: service
+    spec:
+      containers:
+      - name: backend-service
+        image: filstimatias/back:v1.14
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+          name: http
+        env:
+        - name: AUTH_HOSTNAME
+          value: "authentication-service"
+        - name: AUTH_PORT
+          value: "8082"
+        - name: MQ_HOSTNAME
+          value: "rabbitmq"
+        - name: MQ_USER
+          value: "backUser"
+        - name: MQ_PASSWORD
+          value: "backPassword"
+        - name: MQ_PORT
+          value: "5672"
+        - name: REDIS_HOSTNAME
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_PASSWORD
+          value: "testpassword"
+        - name: REDIS_USER
+          value: "testuser"
+        - name: REDIS_TTL
+          value: "1800"
+        - name: ALLOWED_ORIGIN
+          value: "http://frontend-service:8085,http://localhost:8085,http://localhost:8080"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: go-microservices
+  labels:
+    app: backend
+    component: service
+spec:
+  ports:
+  - port: 8081
+    targetPort: 8081
+    name: http
+  selector:
+    app: backend
+    component: service

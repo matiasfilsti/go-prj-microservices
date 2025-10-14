@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aioperator-service
+  namespace: go-microservices
+  labels:
+    app: aioperator
+    component: service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aioperator
+      component: service
+  template:
+    metadata:
+      labels:
+        app: aioperator
+        component: service
+    spec:
+      containers:
+      - name: aioperator-service
+        image: filstimatias/aiop:v1.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8086
+          name: http
+        env:
+        - name: ALLOWED_ORIGIN
+          value: "http://frontend-service:8085,http://localhost:8086"
+        - name: REDIS_HOST
+          value: "redis-ai.go-microservices.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6380"
+        - name: REDIS_USER
+          value: "admin"
+        - name: REDIS_PASSWORD
+          value: "AdminPass123"
+        - name: REDIS_DB
+          value: "airedis_vectorstore"
+        - name: LLM_URL
+          value: "ollama-service.go-microservices.svc.cluster.local:11434"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aioperator-service
+  namespace: go-microservices
+  labels:
+    app: aioperator
+    component: service
+spec:
+  ports:
+  - port: 8086
+    targetPort: 8086
+    name: http
+  selector:
+    app: aioperator
+    component: service
