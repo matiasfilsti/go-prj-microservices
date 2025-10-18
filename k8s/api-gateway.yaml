@@ -102,7 +102,7 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /ask
+        value: /operator
     backendRefs:
     - name: aioperator-service
       port: 8086

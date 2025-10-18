@@ -49,3 +49,11 @@ spec:
         host: frontend-service.go-microservices.svc.cluster.local
         port:
           number: 8085
+  - match:
+    - uri:
+        prefix: /operator
+    route:
+    - destination:
+        host: aioperator-service.go-microservices.svc.cluster.local
+        port:
+          number: 8086

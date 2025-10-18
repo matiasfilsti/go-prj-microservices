@@ -27,7 +27,7 @@ spec:
           name: http
         env:
         - name: ALLOWED_ORIGIN
-          value: "http://frontend-service:8085,http://localhost:8086"
+          value: "http://frontend-service:8085,http://localhost:8086,http://localhost:8080"
         - name: REDIS_HOST
           value: "redis-ai.go-microservices.svc.cluster.local"
         - name: REDIS_PORT
@@ -39,7 +39,7 @@ spec:
         - name: REDIS_DB
           value: "airedis_vectorstore"
         - name: LLM_URL
-          value: "ollama-service.go-microservices.svc.cluster.local:11434"
+          value: "http://ollama.go-microservices.svc.cluster.local:11434"
         resources:
           requests:
             cpu: 100m

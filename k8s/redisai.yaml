@@ -5,11 +5,10 @@ metadata:
   name: redis-ai-config
   namespace: go-microservices
 data:
-  redis-stack.conf: |
+  redis.conf: |
     port 6380
     bind 0.0.0.0
     protected-mode no
-    appendonly yes
     aclfile /users.acl
 ---
 apiVersion: v1
@@ -19,7 +18,7 @@ metadata:
   namespace: go-microservices
 data:
   users.acl: |
-    user default off
+    user default on nopass ~* &* +@all
     user admin on >AdminPass123 ~* &* +@all
     user readonly on >ReadOnlyPass456 ~* &* +@read
 ---
@@ -46,14 +45,14 @@ spec:
       containers:
       - name: redis-ai
         image: redis/redis-stack:latest
-        command: ["redis-stack-server", "/redis-stack.conf"]
+        command: ["redis-stack-server", "/redis.conf"]
         ports:
         - containerPort: 6380
           name: redis
         volumeMounts:
         - name: redis-config
-          mountPath: /redis-stack.conf
-          subPath: redis-stack.conf
+          mountPath: /redis.conf
+          subPath: redis.conf
         - name: acl-config
           mountPath: /users.acl
           subPath: users.acl
@@ -71,8 +70,8 @@ spec:
         configMap:
           name: redis-ai-config
           items:
-          - key: redis-stack.conf
-            path: redis-stack.conf
+          - key: redis.conf
+            path: redis.conf
       - name: acl-config
         configMap:
           name: redis-acl-config
